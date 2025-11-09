@@ -1,41 +1,9 @@
 <?php
 header('Content-Type: application/json');
 
-// Configuration
-$dataDir = __DIR__ . '/../data';
-$commentsFile = $dataDir . '/comments.json';
-$photosFile = $dataDir . '/photos.json';
+require_once __DIR__ . '/../config/database.php';
 
-// Créer le dossier data s'il n'existe pas
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0777, true);
-}
-
-// Initialiser les fichiers JSON s'ils n'existent pas
-if (!file_exists($commentsFile)) {
-    file_put_contents($commentsFile, json_encode([], JSON_PRETTY_PRINT));
-}
-if (!file_exists($photosFile)) {
-    file_put_contents($photosFile, json_encode([], JSON_PRETTY_PRINT));
-}
-
-// Fonctions utilitaires
-function loadComments() {
-    global $commentsFile;
-    $data = file_get_contents($commentsFile);
-    return json_decode($data, true) ?: [];
-}
-
-function saveComments($comments) {
-    global $commentsFile;
-    file_put_contents($commentsFile, json_encode(array_values($comments), JSON_PRETTY_PRINT));
-}
-
-function loadPhotos() {
-    global $photosFile;
-    $data = file_get_contents($photosFile);
-    return json_decode($data, true) ?: [];
-}
+$db = getDB();
 
 // Récupérer la méthode HTTP
 $method = $_SERVER['REQUEST_METHOD'];
@@ -52,17 +20,11 @@ try {
                 exit;
             }
 
-            $comments = loadComments();
-            $photoComments = array_filter($comments, function($c) use ($photoId) {
-                return $c['photo_id'] == $photoId;
-            });
+            $stmt = $db->prepare("SELECT * FROM comments WHERE photo_id = ? ORDER BY created_at DESC");
+            $stmt->execute([$photoId]);
+            $photoComments = $stmt->fetchAll();
 
-            // Trier par date de création
-            usort($photoComments, function($a, $b) {
-                return strcmp($b['created_at'], $a['created_at']);
-            });
-
-            echo json_encode(array_values($photoComments));
+            echo json_encode($photoComments);
             break;
 
         case 'POST':
@@ -76,14 +38,9 @@ try {
             }
 
             // Vérifier que la photo existe
-            $photos = loadPhotos();
-            $photoExists = false;
-            foreach ($photos as $photo) {
-                if ($photo['id'] == $data['photo_id']) {
-                    $photoExists = true;
-                    break;
-                }
-            }
+            $stmt = $db->prepare("SELECT COUNT(*) FROM photos WHERE id = ?");
+            $stmt->execute([$data['photo_id']]);
+            $photoExists = $stmt->fetchColumn() > 0;
 
             if (!$photoExists) {
                 http_response_code(404);
@@ -91,23 +48,21 @@ try {
                 exit;
             }
 
-            $comments = loadComments();
+            $author = isset($data['author']) && trim($data['author']) !== ''
+                ? trim($data['author'])
+                : 'Anonyme';
 
-            // Générer un nouvel ID
-            $newId = empty($comments) ? 1 : max(array_column($comments, 'id')) + 1;
+            $stmt = $db->prepare("INSERT INTO comments (photo_id, content, author) VALUES (?, ?, ?)");
+            $stmt->execute([
+                (int)$data['photo_id'],
+                trim($data['content']),
+                $author
+            ]);
 
-            $newComment = [
-                'id' => $newId,
-                'photo_id' => (int)$data['photo_id'],
-                'content' => trim($data['content']),
-                'author' => isset($data['author']) && trim($data['author']) !== ''
-                    ? trim($data['author'])
-                    : 'Anonyme',
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-
-            $comments[] = $newComment;
-            saveComments($comments);
+            $newId = $db->lastInsertId();
+            $stmt = $db->prepare("SELECT * FROM comments WHERE id = ?");
+            $stmt->execute([$newId]);
+            $newComment = $stmt->fetch();
 
             http_response_code(201);
             echo json_encode($newComment);
@@ -123,27 +78,25 @@ try {
                 exit;
             }
 
-            $comments = loadComments();
-            $found = false;
+            $updateFields = ['content = ?'];
+            $updateParams = [trim($data['content'])];
 
-            foreach ($comments as &$comment) {
-                if ($comment['id'] == $data['id']) {
-                    $comment['content'] = trim($data['content']);
-                    if (isset($data['author']) && trim($data['author']) !== '') {
-                        $comment['author'] = trim($data['author']);
-                    }
-                    $found = true;
-                    break;
-                }
+            if (isset($data['author']) && trim($data['author']) !== '') {
+                $updateFields[] = 'author = ?';
+                $updateParams[] = trim($data['author']);
             }
 
-            if (!$found) {
+            $updateParams[] = $data['id'];
+
+            $stmt = $db->prepare("UPDATE comments SET " . implode(', ', $updateFields) . " WHERE id = ?");
+            $stmt->execute($updateParams);
+
+            if ($stmt->rowCount() === 0) {
                 http_response_code(404);
                 echo json_encode(['error' => 'Commentaire non trouvé']);
                 exit;
             }
 
-            saveComments($comments);
             echo json_encode(['success' => true]);
             break;
 
@@ -157,20 +110,15 @@ try {
                 exit;
             }
 
-            $comments = loadComments();
-            $initialCount = count($comments);
+            $stmt = $db->prepare("DELETE FROM comments WHERE id = ?");
+            $stmt->execute([$data['id']]);
 
-            $comments = array_filter($comments, function($c) use ($data) {
-                return $c['id'] != $data['id'];
-            });
-
-            if (count($comments) === $initialCount) {
+            if ($stmt->rowCount() === 0) {
                 http_response_code(404);
                 echo json_encode(['error' => 'Commentaire non trouvé']);
                 exit;
             }
 
-            saveComments($comments);
             echo json_encode(['success' => true]);
             break;
 
