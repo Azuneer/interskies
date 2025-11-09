@@ -1,33 +1,18 @@
 <?php
-// Configuration des données
-$dataDir = __DIR__ . '/data';
-$photosJsonFile = $dataDir . '/photos.json';
-$commentsJsonFile = $dataDir . '/comments.json';
+require_once __DIR__ . '/config/database.php';
 
-// Créer le dossier data s'il n'existe pas
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0777, true);
-}
+$db = getDB();
 
-// Initialiser les fichiers JSON s'ils n'existent pas
-if (!file_exists($photosJsonFile)) {
-    file_put_contents($photosJsonFile, json_encode([], JSON_PRETTY_PRINT));
-}
-if (!file_exists($commentsJsonFile)) {
-    file_put_contents($commentsJsonFile, json_encode([], JSON_PRETTY_PRINT));
-}
-
-// Charger les données
-$photos = json_decode(file_get_contents($photosJsonFile), true) ?: [];
-$comments = json_decode(file_get_contents($commentsJsonFile), true) ?: [];
-
-// Synchroniser les photos du dossier
+// Synchroniser les photos du dossier avec la base de données
 $photoDir = __DIR__ . '/photos';
 $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
 if (is_dir($photoDir)) {
     $files = scandir($photoDir);
-    $existingFilenames = array_column($photos, 'filename');
+
+    // Récupérer les fichiers existants en base
+    $stmt = $db->query("SELECT filename FROM photos");
+    $existingFilenames = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     foreach ($files as $file) {
         if ($file === '.' || $file === '..') continue;
@@ -41,29 +26,26 @@ if (is_dir($photoDir)) {
             $imageInfo = @getimagesize($filePath);
             $fileSize = filesize($filePath);
 
-            $newId = empty($photos) ? 1 : max(array_column($photos, 'id')) + 1;
-
-            $photos[] = [
-                'id' => $newId,
-                'filename' => $file,
-                'title' => null,
-                'description' => null,
-                'width' => $imageInfo[0] ?? 0,
-                'height' => $imageInfo[1] ?? 0,
-                'size' => $fileSize,
-                'created_at' => date('Y-m-d H:i:s')
-            ];
+            $stmt = $db->prepare("INSERT INTO photos (filename, width, height, size) VALUES (?, ?, ?, ?)");
+            $stmt->execute([
+                $file,
+                $imageInfo[0] ?? 0,
+                $imageInfo[1] ?? 0,
+                $fileSize
+            ]);
         }
     }
 
     // Supprimer les photos qui n'existent plus
-    $photos = array_filter($photos, function($photo) use ($photoDir) {
-        return file_exists($photoDir . '/' . $photo['filename']);
-    });
-    $photos = array_values($photos); // Réindexer
+    $stmt = $db->query("SELECT id, filename FROM photos");
+    $photos = $stmt->fetchAll();
 
-    // Sauvegarder
-    file_put_contents($photosJsonFile, json_encode($photos, JSON_PRETTY_PRINT));
+    foreach ($photos as $photo) {
+        if (!file_exists($photoDir . '/' . $photo['filename'])) {
+            $deleteStmt = $db->prepare("DELETE FROM photos WHERE id = ?");
+            $deleteStmt->execute([$photo['id']]);
+        }
+    }
 }
 
 // Récupérer les paramètres de filtrage et tri
@@ -71,59 +53,65 @@ $filterSize = $_GET['size'] ?? 'all';
 $filterFormat = $_GET['format'] ?? 'all';
 $sortBy = $_GET['sort'] ?? 'recent';
 
-// Filtrer les photos
-$filteredPhotos = $photos;
+// Construire la requête SQL avec filtres
+$query = "SELECT p.*, COUNT(c.id) as comment_count
+          FROM photos p
+          LEFT JOIN comments c ON p.id = c.photo_id
+          WHERE 1=1";
 
+$params = [];
+
+// Filtrer par taille
 if ($filterSize !== 'all') {
-    $filteredPhotos = array_filter($filteredPhotos, function($photo) use ($filterSize) {
-        $pixels = $photo['width'] * $photo['height'];
-        if ($filterSize === 'large') return $pixels > 2000000;
-        if ($filterSize === 'medium') return $pixels >= 500000 && $pixels <= 2000000;
-        if ($filterSize === 'small') return $pixels < 500000;
-        return true;
-    });
-}
-
-if ($filterFormat !== 'all') {
-    $filteredPhotos = array_filter($filteredPhotos, function($photo) use ($filterFormat) {
-        if ($filterFormat === 'landscape') return $photo['width'] > $photo['height'];
-        if ($filterFormat === 'portrait') return $photo['height'] > $photo['width'];
-        if ($filterFormat === 'square') return abs($photo['width'] - $photo['height']) < 100;
-        return true;
-    });
-}
-
-// Réindexer le tableau après les filtres
-$filteredPhotos = array_values($filteredPhotos);
-
-// Trier les photos
-usort($filteredPhotos, function($a, $b) use ($sortBy) {
-    switch ($sortBy) {
-        case 'recent':
-            return strcmp($b['created_at'], $a['created_at']);
-        case 'oldest':
-            return strcmp($a['created_at'], $b['created_at']);
-        case 'size_desc':
-            return $b['size'] - $a['size'];
-        case 'size_asc':
-            return $a['size'] - $b['size'];
-        case 'name_asc':
-            return strcmp($a['filename'], $b['filename']);
-        case 'name_desc':
-            return strcmp($b['filename'], $a['filename']);
-        default:
-            return 0;
+    if ($filterSize === 'large') {
+        $query .= " AND (p.width * p.height) > 2000000";
+    } elseif ($filterSize === 'medium') {
+        $query .= " AND (p.width * p.height) >= 500000 AND (p.width * p.height) <= 2000000";
+    } elseif ($filterSize === 'small') {
+        $query .= " AND (p.width * p.height) < 500000";
     }
-});
-
-// Ajouter le compteur de commentaires
-foreach ($filteredPhotos as &$photo) {
-    $photoComments = array_filter($comments, function($c) use ($photo) {
-        return $c['photo_id'] == $photo['id'];
-    });
-    $photo['comment_count'] = count($photoComments);
 }
-unset($photo); // Détruire la référence pour éviter les conflits
+
+// Filtrer par format
+if ($filterFormat !== 'all') {
+    if ($filterFormat === 'landscape') {
+        $query .= " AND p.width > p.height";
+    } elseif ($filterFormat === 'portrait') {
+        $query .= " AND p.height > p.width";
+    } elseif ($filterFormat === 'square') {
+        $query .= " AND ABS(p.width - p.height) < 100";
+    }
+}
+
+$query .= " GROUP BY p.id";
+
+// Ajouter le tri
+switch ($sortBy) {
+    case 'recent':
+        $query .= " ORDER BY p.created_at DESC";
+        break;
+    case 'oldest':
+        $query .= " ORDER BY p.created_at ASC";
+        break;
+    case 'size_desc':
+        $query .= " ORDER BY p.size DESC";
+        break;
+    case 'size_asc':
+        $query .= " ORDER BY p.size ASC";
+        break;
+    case 'name_asc':
+        $query .= " ORDER BY p.filename ASC";
+        break;
+    case 'name_desc':
+        $query .= " ORDER BY p.filename DESC";
+        break;
+    default:
+        $query .= " ORDER BY p.created_at DESC";
+}
+
+$stmt = $db->prepare($query);
+$stmt->execute($params);
+$filteredPhotos = $stmt->fetchAll();
 
 // Calculer les statistiques
 $totalPhotos = count($filteredPhotos);

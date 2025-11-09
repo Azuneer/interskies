@@ -1,4 +1,17 @@
+# Données et fichiers générés
 data/
+database/
 photos/
-create_test_photos.php
 *.db
+
+# Scripts de développement et migration
+create_test_photos.php
+migrate_to_sqlite.php
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers d'environnement
+.env
+.env.local
