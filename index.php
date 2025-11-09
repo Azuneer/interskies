@@ -93,6 +93,9 @@ if ($filterFormat !== 'all') {
     });
 }
 
+// Réindexer le tableau après les filtres
+$filteredPhotos = array_values($filteredPhotos);
+
 // Trier les photos
 usort($filteredPhotos, function($a, $b) use ($sortBy) {
     switch ($sortBy) {
