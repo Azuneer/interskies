@@ -203,14 +203,10 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
         <main class="main-content">
             <div class="gallery">
                 <?php foreach ($filteredPhotos as $photo): ?>
-                    <div class="photo-item" data-id="<?= $photo['id'] ?>">
+                    <div class="photo-item" data-id="<?= $photo['id'] ?>" data-filename="<?= htmlspecialchars($photo['filename']) ?>">
                         <img src="photos/<?= htmlspecialchars($photo['filename']) ?>"
                              alt="<?= htmlspecialchars($photo['title'] ?? $photo['filename']) ?>"
                              loading="lazy">
-                        <div class="photo-info">
-                            <span class="photo-name"><?= htmlspecialchars($photo['filename']) ?></span>
-                            <span class="photo-dimensions"><?= $photo['width'] ?>×<?= $photo['height'] ?></span>
-                        </div>
                         <?php if ($photo['comment_count'] > 0): ?>
                             <div class="photo-comment-count">
                                 💬 <?= $photo['comment_count'] ?>
@@ -224,17 +220,29 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
 
     <!-- Modal pour gérer les commentaires -->
     <div id="comments-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content-split">
             <span class="modal-close">&times;</span>
-            <h2 id="modal-photo-title">Commentaires</h2>
 
-            <div id="comments-list"></div>
+            <!-- Photo section (left) -->
+            <div class="modal-photo-section">
+                <img id="modal-photo-img" src="" alt="">
+                <div class="modal-photo-info">
+                    <span id="modal-photo-filename"></span>
+                </div>
+            </div>
 
-            <div class="comment-form">
-                <h3>Ajouter un commentaire</h3>
-                <textarea id="comment-content" placeholder="Votre commentaire..." rows="3"></textarea>
-                <input type="text" id="comment-author" placeholder="Votre nom (optionnel)">
-                <button onclick="addComment()">Ajouter</button>
+            <!-- Comments section (right) -->
+            <div class="modal-comments-section">
+                <h2 id="modal-photo-title">Commentaires</h2>
+
+                <div id="comments-list"></div>
+
+                <div class="comment-form">
+                    <h3>Ajouter un commentaire</h3>
+                    <textarea id="comment-content" placeholder="Votre commentaire..." rows="3"></textarea>
+                    <input type="text" id="comment-author" placeholder="Votre nom (optionnel)">
+                    <button onclick="addComment()">Ajouter</button>
+                </div>
             </div>
         </div>
     </div>
