@@ -97,7 +97,7 @@ $totalComments = count($comments);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Interskies</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body style="background-color: #fffef9; background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.02) 2px, rgba(0,0,0,.02) 4px);">
     <div class="admin-container">
@@ -179,7 +179,7 @@ $totalComments = count($comments);
                         Auteur
                     </label>
                     <input type="text" id="form-author" placeholder="Votre nom"
-                           style="width: 100%; padding: 12px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Courier Prime', monospace; font-size: 13px;">
+                           style="width: 100%; padding: 12px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px;">
                 </div>
 
                 <div style="margin-bottom: 15px;">
@@ -187,16 +187,16 @@ $totalComments = count($comments);
                         Commentaire
                     </label>
                     <textarea id="form-content" rows="4" placeholder="Votre commentaire..."
-                              style="width: 100%; padding: 12px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Courier Prime', monospace; font-size: 13px; resize: vertical;"></textarea>
+                              style="width: 100%; padding: 12px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px; resize: vertical;"></textarea>
                 </div>
 
                 <div style="display: flex; gap: 10px;">
                     <button type="button" onclick="submitCommentForm()"
-                            style="flex: 1; padding: 12px; background-color: #2b2b2b; color: #fff; border: 3px solid #2b2b2b; font-family: 'Courier Prime', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
+                            style="flex: 1; padding: 12px; background-color: #2b2b2b; color: #fff; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
                         Enregistrer
                     </button>
                     <button type="button" onclick="closeCommentModal()"
-                            style="padding: 12px 20px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Courier Prime', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
+                            style="padding: 12px 20px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
                         Annuler
                     </button>
                 </div>
