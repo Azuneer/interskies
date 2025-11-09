@@ -84,6 +84,7 @@ foreach ($photos as &$photo) {
         return strcmp($b['created_at'], $a['created_at']);
     });
 }
+unset($photo); // Détruire la référence pour éviter les conflits
 
 // Calculer les statistiques
 $totalPhotos = count($photos);
