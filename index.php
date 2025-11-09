@@ -123,6 +123,7 @@ foreach ($filteredPhotos as &$photo) {
     });
     $photo['comment_count'] = count($photoComments);
 }
+unset($photo); // Détruire la référence pour éviter les conflits
 
 // Calculer les statistiques
 $totalPhotos = count($filteredPhotos);

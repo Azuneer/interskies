@@ -1,5 +1,5 @@
 /* === INDIE GRUNGE GOTH AESTHETIC WITH AUTO DAY/NIGHT MODE === */
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&family=Caveat:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
 /* === ROOT VARIABLES === */
 :root {
@@ -39,7 +39,7 @@ body.dark-mode {
 }
 
 body {
-    font-family: 'Courier Prime', 'Courier New', monospace;
+    font-family: 'Space Mono', 'Courier New', monospace;
     background-color: var(--bg-primary);
     background-image:
         repeating-linear-gradient(0deg, transparent, transparent 2px, var(--shadow-color) 2px, var(--shadow-color) 4px);
@@ -68,7 +68,7 @@ body {
 }
 
 .title {
-    font-family: 'Special Elite', 'Courier New', monospace;
+    font-family: 'Space Mono', 'Courier New', monospace;
     font-size: 32px;
     font-weight: 700;
     color: var(--text-primary);
@@ -143,7 +143,7 @@ body {
 }
 
 .filters h2 {
-    font-family: 'Special Elite', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 18px;
     color: var(--text-primary);
     margin-bottom: 15px;
@@ -174,7 +174,7 @@ body {
     background-color: var(--bg-card);
     color: var(--text-primary);
     border: 3px solid var(--border-color);
-    font-family: 'Courier Prime', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 13px;
     cursor: pointer;
     box-shadow: 3px 3px 0 var(--shadow-color);
@@ -193,7 +193,7 @@ body {
     background-color: var(--border-color);
     color: var(--bg-card);
     border: 3px solid var(--border-color);
-    font-family: 'Courier Prime', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -223,7 +223,7 @@ body {
 }
 
 .admin-panel h2 {
-    font-family: 'Special Elite', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 18px;
     color: var(--text-primary);
     margin-bottom: 15px;
@@ -435,7 +435,7 @@ body.dark-mode .photo-item img {
 }
 
 #modal-photo-title {
-    font-family: 'Special Elite', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 22px;
     color: var(--text-primary);
     margin-bottom: 20px;
@@ -513,7 +513,7 @@ body.dark-mode .photo-item img {
 .comment-actions button {
     padding: 8px 15px;
     border: 2px solid var(--border-color);
-    font-family: 'Courier Prime', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
@@ -553,7 +553,7 @@ body.dark-mode .photo-item img {
 }
 
 .comment-form h3 {
-    font-family: 'Special Elite', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 16px;
     color: var(--text-primary);
     margin-bottom: 15px;
@@ -572,7 +572,7 @@ body.dark-mode .photo-item img {
     background-color: var(--bg-card);
     color: var(--text-primary);
     border: 3px solid var(--border-color);
-    font-family: 'Courier Prime', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 13px;
     margin-bottom: 12px;
     resize: vertical;
@@ -592,7 +592,7 @@ body.dark-mode .photo-item img {
     background-color: var(--border-color);
     color: var(--bg-card);
     border: 3px solid var(--border-color);
-    font-family: 'Courier Prime', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -630,7 +630,7 @@ body.dark-mode .photo-item img {
 }
 
 .admin-header h1 {
-    font-family: 'Special Elite', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 36px;
     color: var(--text-primary);
     margin-bottom: 10px;
@@ -754,7 +754,7 @@ body.dark-mode .photo-item img {
     border: 2px solid var(--border-color);
     background-color: var(--bg-card);
     color: var(--text-primary);
-    font-family: 'Courier Prime', monospace;
+    font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
     cursor: pointer;
