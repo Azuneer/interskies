@@ -1,3 +1,6 @@
+/* === INDIE GRUNGE GOTH AESTHETIC === */
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&family=Caveat:wght@700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,9 +8,11 @@
 }
 
 body {
-    font-family: 'Space Mono', monospace;
-    background-color: #0a0a0a;
-    color: #e0e0e0;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    background-color: #fffef9;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.02) 2px, rgba(0,0,0,.02) 4px);
+    color: #2b2b2b;
     line-height: 1.6;
 }
 
@@ -18,56 +23,82 @@ body {
 
 /* === SIDEBAR === */
 .sidebar {
-    width: 300px;
-    background-color: #111;
-    padding: 30px 20px;
-    border-right: 1px solid #333;
+    width: 320px;
+    background-color: #f5f3ed;
+    padding: 30px 25px;
+    border-right: 4px solid #2b2b2b;
     overflow-y: auto;
     position: sticky;
     top: 0;
     height: 100vh;
+    box-shadow: 6px 0 0 rgba(0,0,0,0.1);
 }
 
 .title {
-    font-size: 28px;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 32px;
     font-weight: 700;
-    color: #00d4ff;
+    color: #2b2b2b;
     text-align: center;
-    margin-bottom: 30px;
-    letter-spacing: 3px;
-    animation: glow 2s ease-in-out infinite alternate;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 15px;
 }
 
-@keyframes glow {
-    from {
-        text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
-    }
-    to {
-        text-shadow: 0 0 20px #00d4ff, 0 0 40px #00d4ff;
-    }
+.title::after {
+    content: '~ * ~';
+    display: block;
+    font-size: 14px;
+    margin-top: 8px;
+    letter-spacing: 8px;
+    color: #b8a7d4;
+}
+
+.title::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 3px;
+    background-color: #2b2b2b;
 }
 
 /* Stats */
 .stats {
-    background-color: #1a1a1a;
-    padding: 15px;
-    border-radius: 8px;
+    background-color: #fff;
+    padding: 20px;
+    border: 3px solid #2b2b2b;
     margin-bottom: 25px;
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
 }
 
 .stat-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 10px 0;
+    border-bottom: 2px dashed #d4d4d4;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
 }
 
 .stat-label {
-    color: #888;
-    font-size: 13px;
+    color: #666;
+    font-size: 14px;
+}
+
+.stat-label::before {
+    content: '→ ';
+    color: #b8a7d4;
 }
 
 .stat-value {
-    color: #00d4ff;
+    color: #2b2b2b;
     font-weight: 700;
     font-size: 14px;
 }
@@ -78,9 +109,17 @@ body {
 }
 
 .filters h2 {
-    font-size: 16px;
-    color: #00d4ff;
+    font-family: 'Special Elite', monospace;
+    font-size: 18px;
+    color: #2b2b2b;
     margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.filters h2::before {
+    content: '✦ ';
+    color: #e5989b;
 }
 
 .filter-group {
@@ -89,72 +128,97 @@ body {
 
 .filter-group label {
     display: block;
-    font-size: 12px;
-    color: #888;
+    font-size: 13px;
+    color: #666;
     margin-bottom: 5px;
+    font-weight: 700;
 }
 
 .filter-group select {
     width: 100%;
-    padding: 10px;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    border: 1px solid #333;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 12px;
+    background-color: #fff;
+    color: #2b2b2b;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
     cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
 }
 
 .filter-group select:focus {
     outline: none;
-    border-color: #00d4ff;
+    border-color: #b8a7d4;
+    box-shadow: 3px 3px 0 #b8a7d4;
 }
 
 .btn-reset {
     width: 100%;
-    padding: 10px;
-    background-color: #333;
-    color: #e0e0e0;
-    border: none;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 12px;
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
 }
 
 .btn-reset:hover {
-    background-color: #444;
+    background-color: #fff;
+    color: #2b2b2b;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+.btn-reset:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
 }
 
 /* Admin Panel */
 .admin-panel {
     margin-top: 25px;
+    padding-top: 25px;
+    border-top: 3px dashed #d4d4d4;
 }
 
 .admin-panel h2 {
-    font-size: 16px;
-    color: #00d4ff;
+    font-family: 'Special Elite', monospace;
+    font-size: 18px;
+    color: #2b2b2b;
     margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-panel h2::before {
+    content: '✦ ';
+    color: #e5989b;
 }
 
 .btn-admin {
     width: 100%;
-    padding: 12px;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    border: 1px solid #333;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 14px;
+    background-color: #fff;
+    color: #2b2b2b;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
 }
 
 .btn-admin:hover {
-    background-color: #222;
-    border-color: #00d4ff;
+    background-color: #b8a7d4;
+    color: #fff;
+    border-color: #b8a7d4;
 }
 
 .admin-password {
@@ -165,25 +229,58 @@ body {
 
 .admin-password input {
     flex: 1;
-    padding: 10px;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    border: 1px solid #333;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 12px;
+    background-color: #fff;
+    color: #2b2b2b;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
 }
 
+.admin-password input:focus {
+    outline: none;
+    border-color: #b8a7d4;
+}
+
 .admin-password button {
-    padding: 10px 20px;
-    background-color: #00d4ff;
-    color: #0a0a0a;
-    border: none;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 12px 20px;
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
-    cursor: pointer;
     font-weight: 700;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+}
+
+.admin-password button:hover {
+    background-color: #e5989b;
+    border-color: #e5989b;
+}
+
+.admin-link {
+    display: block;
+    margin-top: 15px;
+    padding: 14px;
+    background-color: #e5989b;
+    color: #2b2b2b;
+    border: 3px solid #2b2b2b;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.admin-link:hover {
+    background-color: #2b2b2b;
+    color: #fff;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
 }
 
 /* === MAIN CONTENT === */
@@ -196,78 +293,85 @@ body {
 .gallery {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 30px;
 }
 
 .photo-item {
     position: relative;
-    background-color: #1a1a1a;
-    border-radius: 10px;
-    overflow: hidden;
+    background-color: #fff;
+    border: 3px solid #2b2b2b;
+    padding: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
 }
 
 .photo-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    transform: rotate(-2deg) translate(-3px, -3px);
+    box-shadow: 10px 10px 0 rgba(184, 167, 212, 0.3);
 }
 
 .photo-item img {
     width: 100%;
-    height: 200px;
+    height: 220px;
     object-fit: cover;
     display: block;
+    border: 2px solid #e0e0e0;
 }
 
 .photo-info {
-    padding: 12px;
-    background-color: #111;
+    padding: 12px 0 0 0;
+    background-color: #fff;
 }
 
 .photo-name {
     display: block;
     font-size: 12px;
-    color: #e0e0e0;
+    color: #2b2b2b;
     margin-bottom: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 700;
 }
 
 .photo-dimensions {
     display: block;
     font-size: 11px;
-    color: #888;
+    color: #999;
 }
 
 .photo-comment-count {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(0, 212, 255, 0.9);
-    color: #0a0a0a;
-    padding: 5px 10px;
-    border-radius: 15px;
+    top: 20px;
+    right: 20px;
+    background-color: #e5989b;
+    color: #2b2b2b;
+    padding: 6px 12px;
+    border: 2px solid #2b2b2b;
     font-size: 12px;
     font-weight: 700;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
 }
 
 .btn-manage-comments {
     width: 100%;
     padding: 10px;
-    background-color: #00d4ff;
-    color: #0a0a0a;
-    border: none;
-    font-family: 'Space Mono', monospace;
+    margin-top: 10px;
+    background-color: #b8a7d4;
+    color: #2b2b2b;
+    border: 2px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    text-transform: uppercase;
 }
 
 .btn-manage-comments:hover {
-    background-color: #00b8e6;
+    background-color: #2b2b2b;
+    color: #fff;
 }
 
 /* === MODAL === */
@@ -279,44 +383,46 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    background-color: rgba(0, 0, 0, 0.85);
 }
 
 .modal-content {
-    background-color: #1a1a1a;
+    background-color: #fffef9;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.02) 2px, rgba(0,0,0,.02) 4px);
     margin: 5% auto;
-    padding: 30px;
-    border: 1px solid #333;
-    border-radius: 10px;
+    padding: 40px;
+    border: 5px solid #2b2b2b;
     width: 90%;
     max-width: 700px;
     max-height: 80vh;
     overflow-y: auto;
+    box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
 }
 
 .modal-close {
-    color: #888;
+    color: #2b2b2b;
     float: right;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
     cursor: pointer;
-    transition: color 0.3s;
+    line-height: 1;
+    transition: all 0.2s;
 }
 
 .modal-close:hover {
-    color: #00d4ff;
+    color: #e5989b;
+    transform: rotate(90deg);
 }
 
 #modal-photo-title {
-    font-size: 20px;
-    color: #00d4ff;
+    font-family: 'Special Elite', monospace;
+    font-size: 22px;
+    color: #2b2b2b;
     margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #2b2b2b;
+    text-transform: uppercase;
 }
 
 /* Comments List */
@@ -325,36 +431,57 @@ body {
 }
 
 .comment {
-    background-color: #111;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border-left: 3px solid #00d4ff;
+    background-color: #fff;
+    padding: 20px;
+    border: 3px solid #2b2b2b;
+    margin-bottom: 20px;
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.comment::before {
+    content: '✦';
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background-color: #fffef9;
+    padding: 0 8px;
+    color: #b8a7d4;
+    font-size: 16px;
 }
 
 .comment-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed #e0e0e0;
 }
 
 .comment-author {
-    font-size: 13px;
-    color: #00d4ff;
+    font-size: 14px;
+    color: #2b2b2b;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.comment-author::before {
+    content: '~ ';
+    color: #e5989b;
 }
 
 .comment-date {
     font-size: 11px;
-    color: #666;
+    color: #999;
 }
 
 .comment-content {
-    font-size: 13px;
-    color: #e0e0e0;
-    line-height: 1.6;
-    margin-bottom: 10px;
+    font-size: 14px;
+    color: #2b2b2b;
+    line-height: 1.8;
+    margin-bottom: 15px;
 }
 
 .comment-actions {
@@ -363,55 +490,67 @@ body {
 }
 
 .comment-actions button {
-    padding: 5px 12px;
-    border: none;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 8px 15px;
+    border: 2px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    text-transform: uppercase;
 }
 
 .btn-edit {
-    background-color: #333;
-    color: #e0e0e0;
+    background-color: #fff;
+    color: #2b2b2b;
 }
 
 .btn-edit:hover {
-    background-color: #444;
+    background-color: #b8a7d4;
+    color: #fff;
+    border-color: #b8a7d4;
 }
 
 .btn-delete {
-    background-color: #ff4444;
-    color: #fff;
+    background-color: #fff;
+    color: #2b2b2b;
 }
 
 .btn-delete:hover {
-    background-color: #cc0000;
+    background-color: #e5989b;
+    color: #2b2b2b;
+    border-color: #e5989b;
 }
 
 /* Comment Form */
 .comment-form {
-    background-color: #111;
-    padding: 20px;
-    border-radius: 8px;
+    background-color: #f5f3ed;
+    padding: 25px;
+    border: 3px solid #2b2b2b;
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
 }
 
 .comment-form h3 {
+    font-family: 'Special Elite', monospace;
     font-size: 16px;
-    color: #00d4ff;
+    color: #2b2b2b;
     margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.comment-form h3::before {
+    content: '✦ ';
+    color: #e5989b;
 }
 
 .comment-form textarea,
 .comment-form input[type="text"] {
     width: 100%;
-    padding: 12px;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    border: 1px solid #333;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 15px;
+    background-color: #fff;
+    color: #2b2b2b;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
     margin-bottom: 12px;
     resize: vertical;
@@ -420,24 +559,186 @@ body {
 .comment-form textarea:focus,
 .comment-form input[type="text"]:focus {
     outline: none;
-    border-color: #00d4ff;
+    border-color: #b8a7d4;
+    box-shadow: 3px 3px 0 #b8a7d4;
 }
 
 .comment-form button {
-    padding: 12px 25px;
-    background-color: #00d4ff;
-    color: #0a0a0a;
-    border: none;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
+    padding: 12px 30px;
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 3px solid #2b2b2b;
+    font-family: 'Courier Prime', monospace;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
 }
 
 .comment-form button:hover {
-    background-color: #00b8e6;
+    background-color: #e5989b;
+    border-color: #e5989b;
+    color: #2b2b2b;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+.comment-form button:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+}
+
+/* === ADMIN PAGE === */
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+}
+
+.admin-header {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 5px solid #2b2b2b;
+}
+
+.admin-header h1 {
+    font-family: 'Special Elite', monospace;
+    font-size: 36px;
+    color: #2b2b2b;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.admin-header h1::before {
+    content: '✦ ';
+    color: #e5989b;
+}
+
+.admin-header p {
+    color: #666;
+    font-size: 14px;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.admin-nav a {
+    padding: 12px 25px;
+    background-color: #fff;
+    color: #2b2b2b;
+    border: 3px solid #2b2b2b;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.admin-nav a:hover {
+    background-color: #b8a7d4;
+    color: #fff;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+}
+
+.admin-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.admin-photo-card {
+    background-color: #fff;
+    border: 4px solid #2b2b2b;
+    padding: 20px;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
+}
+
+.admin-photo-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+    margin-bottom: 15px;
+}
+
+.admin-photo-info {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px dashed #e0e0e0;
+}
+
+.admin-photo-info h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2b2b2b;
+    margin-bottom: 8px;
+}
+
+.admin-photo-info p {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.admin-comments-section {
+    margin-top: 15px;
+}
+
+.admin-comments-section h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2b2b2b;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.admin-comment-item {
+    background-color: #f5f3ed;
+    padding: 12px;
+    border-left: 4px solid #e5989b;
+    margin-bottom: 10px;
+}
+
+.admin-comment-item p {
+    font-size: 12px;
+    color: #2b2b2b;
+    margin-bottom: 8px;
+}
+
+.admin-comment-item small {
+    font-size: 11px;
+    color: #999;
+}
+
+.admin-comment-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    border: 2px solid #2b2b2b;
+    background-color: #fff;
+    color: #2b2b2b;
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.btn-small:hover {
+    background-color: #2b2b2b;
+    color: #fff;
 }
 
 /* Responsive Design */
@@ -450,6 +751,8 @@ body {
         width: 100%;
         height: auto;
         position: relative;
+        border-right: none;
+        border-bottom: 4px solid #2b2b2b;
     }
 
     .main-content {
@@ -458,6 +761,10 @@ body {
 
     .gallery {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
+        gap: 20px;
+    }
+
+    .admin-photo-grid {
+        grid-template-columns: 1fr;
     }
 }

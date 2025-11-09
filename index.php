@@ -195,11 +195,7 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
 
             <div class="admin-panel">
                 <h2>Administration</h2>
-                <button id="admin-toggle" class="btn-admin">🔐 Mode Admin</button>
-                <div id="admin-password" class="admin-password" style="display: none;">
-                    <input type="password" id="password-input" placeholder="Mot de passe">
-                    <button onclick="checkPassword()">Valider</button>
-                </div>
+                <a href="admin.php" class="admin-link">Page Admin</a>
             </div>
         </aside>
 
@@ -220,9 +216,6 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
                                 💬 <?= $photo['comment_count'] ?>
                             </div>
                         <?php endif; ?>
-                        <button class="btn-manage-comments" data-photo-id="<?= $photo['id'] ?>" style="display: none;">
-                            Commentaires
-                        </button>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -247,6 +240,5 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
     </div>
 
     <script src="assets/js/script.js"></script>
-    <script src="assets/js/admin.js"></script>
 </body>
 </html>
