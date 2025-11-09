@@ -1,33 +1,22 @@
 <?php
-// Configuration des données
-$dataDir = __DIR__ . '/data';
-$photosJsonFile = $dataDir . '/photos.json';
-$commentsJsonFile = $dataDir . '/comments.json';
+// Exiger une authentification
+require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/config/database.php';
 
-// Créer le dossier data s'il n'existe pas
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0777, true);
-}
+requireLogin();
 
-// Initialiser les fichiers JSON s'ils n'existent pas
-if (!file_exists($photosJsonFile)) {
-    file_put_contents($photosJsonFile, json_encode([], JSON_PRETTY_PRINT));
-}
-if (!file_exists($commentsJsonFile)) {
-    file_put_contents($commentsJsonFile, json_encode([], JSON_PRETTY_PRINT));
-}
+$db = getDB();
 
-// Charger les données
-$photos = json_decode(file_get_contents($photosJsonFile), true) ?: [];
-$comments = json_decode(file_get_contents($commentsJsonFile), true) ?: [];
-
-// Synchroniser les photos du dossier
+// Synchroniser les photos du dossier avec la base de données
 $photoDir = __DIR__ . '/photos';
 $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
 if (is_dir($photoDir)) {
     $files = scandir($photoDir);
-    $existingFilenames = array_column($photos, 'filename');
+
+    // Récupérer les fichiers existants en base
+    $stmt = $db->query("SELECT filename FROM photos");
+    $existingFilenames = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     foreach ($files as $file) {
         if ($file === '.' || $file === '..') continue;
@@ -41,54 +30,49 @@ if (is_dir($photoDir)) {
             $imageInfo = @getimagesize($filePath);
             $fileSize = filesize($filePath);
 
-            $newId = empty($photos) ? 1 : max(array_column($photos, 'id')) + 1;
-
-            $photos[] = [
-                'id' => $newId,
-                'filename' => $file,
-                'title' => null,
-                'description' => null,
-                'width' => $imageInfo[0] ?? 0,
-                'height' => $imageInfo[1] ?? 0,
-                'size' => $fileSize,
-                'created_at' => date('Y-m-d H:i:s')
-            ];
+            $stmt = $db->prepare("INSERT INTO photos (filename, width, height, size) VALUES (?, ?, ?, ?)");
+            $stmt->execute([
+                $file,
+                $imageInfo[0] ?? 0,
+                $imageInfo[1] ?? 0,
+                $fileSize
+            ]);
         }
     }
 
     // Supprimer les photos qui n'existent plus
-    $photos = array_filter($photos, function($photo) use ($photoDir) {
-        return file_exists($photoDir . '/' . $photo['filename']);
-    });
-    $photos = array_values($photos); // Réindexer
+    $stmt = $db->query("SELECT id, filename FROM photos");
+    $photos = $stmt->fetchAll();
 
-    // Sauvegarder
-    file_put_contents($photosJsonFile, json_encode($photos, JSON_PRETTY_PRINT));
+    foreach ($photos as $photo) {
+        if (!file_exists($photoDir . '/' . $photo['filename'])) {
+            $deleteStmt = $db->prepare("DELETE FROM photos WHERE id = ?");
+            $deleteStmt->execute([$photo['id']]);
+        }
+    }
 }
 
-// Trier par date de création (plus récent en premier)
-usort($photos, function($a, $b) {
-    return strcmp($b['created_at'], $a['created_at']);
-});
+// Récupérer toutes les photos avec leurs commentaires
+$stmt = $db->query("SELECT p.*, COUNT(c.id) as comment_count
+                    FROM photos p
+                    LEFT JOIN comments c ON p.id = c.photo_id
+                    GROUP BY p.id
+                    ORDER BY p.created_at DESC");
+$photos = $stmt->fetchAll();
 
-// Ajouter le compteur de commentaires
+// Pour chaque photo, récupérer ses commentaires
 foreach ($photos as &$photo) {
-    $photoComments = array_filter($comments, function($c) use ($photo) {
-        return $c['photo_id'] == $photo['id'];
-    });
-    $photo['comment_count'] = count($photoComments);
-    $photo['comments'] = array_values($photoComments);
-
-    // Trier les commentaires par date
-    usort($photo['comments'], function($a, $b) {
-        return strcmp($b['created_at'], $a['created_at']);
-    });
+    $stmt = $db->prepare("SELECT * FROM comments WHERE photo_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$photo['id']]);
+    $photo['comments'] = $stmt->fetchAll();
 }
+unset($photo);
 
 // Calculer les statistiques
 $totalPhotos = count($photos);
 $totalSize = array_sum(array_column($photos, 'size'));
-$totalComments = count($comments);
+$stmt = $db->query("SELECT COUNT(*) FROM comments");
+$totalComments = $stmt->fetchColumn();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -99,19 +83,25 @@ $totalComments = count($comments);
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body style="background-color: #fffef9; background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.02) 2px, rgba(0,0,0,.02) 4px);">
+<body style="background-color: var(--bg-primary); background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--shadow-color) 2px, var(--shadow-color) 4px);">
     <div class="admin-container">
         <div class="admin-header">
             <h1>Administration</h1>
-            <p>Gestion des photos et commentaires</p>
+            <p>Gestion des photos et commentaires • Connecté en tant que <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></p>
         </div>
 
         <div class="admin-nav">
             <a href="index.php">← Retour à la galerie</a>
             <div style="flex: 1;"></div>
-            <div style="color: #666; font-size: 13px; padding: 12px 0;">
+            <div style="color: var(--text-secondary); font-size: 13px; padding: 12px 0;">
                 <?= $totalPhotos ?> photos • <?= $totalComments ?> commentaires • <?= number_format($totalSize / 1024 / 1024, 2) ?> MB
             </div>
+            <form method="POST" action="auth.php" style="margin: 0;">
+                <input type="hidden" name="action" value="logout">
+                <button type="submit" style="padding: 12px 25px; background-color: var(--accent-pink); color: var(--text-primary); border: 3px solid var(--border-color); text-decoration: none; font-weight: 700; font-size: 13px; text-transform: uppercase; box-shadow: 4px 4px 0 var(--shadow-color); cursor: pointer; font-family: 'Space Mono', monospace;">
+                    Déconnexion
+                </button>
+            </form>
         </div>
 
         <div class="admin-photo-grid">
@@ -131,7 +121,7 @@ $totalComments = count($comments);
                         <h4>Commentaires (<?= $photo['comment_count'] ?>)</h4>
 
                         <?php if (empty($photo['comments'])): ?>
-                            <p style="color: #999; font-size: 12px; padding: 10px 0;">Aucun commentaire</p>
+                            <p style="color: var(--text-muted); font-size: 12px; padding: 10px 0;">Aucun commentaire</p>
                         <?php else: ?>
                             <div class="admin-comments-list">
                                 <?php foreach ($photo['comments'] as $comment): ?>
@@ -154,7 +144,7 @@ $totalComments = count($comments);
 
                         <div style="margin-top: 15px;">
                             <button class="btn-small" onclick="showAddCommentForm(<?= $photo['id'] ?>)"
-                                    style="width: 100%; padding: 10px; background-color: #b8a7d4; color: #fff; border-color: #b8a7d4;">
+                                    style="width: 100%; padding: 10px; background-color: var(--accent-purple); color: var(--bg-card); border-color: var(--accent-purple);">
                                 + Ajouter un commentaire
                             </button>
                         </div>
@@ -175,28 +165,28 @@ $totalComments = count($comments);
                 <input type="hidden" id="form-comment-id">
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 13px; color: #666; margin-bottom: 5px; font-weight: 700;">
+                    <label style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; font-weight: 700;">
                         Auteur
                     </label>
                     <input type="text" id="form-author" placeholder="Votre nom"
-                           style="width: 100%; padding: 12px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px;">
+                           style="width: 100%; padding: 12px; background-color: var(--bg-card); color: var(--text-primary); border: 3px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 13px;">
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 13px; color: #666; margin-bottom: 5px; font-weight: 700;">
+                    <label style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; font-weight: 700;">
                         Commentaire
                     </label>
                     <textarea id="form-content" rows="4" placeholder="Votre commentaire..."
-                              style="width: 100%; padding: 12px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px; resize: vertical;"></textarea>
+                              style="width: 100%; padding: 12px; background-color: var(--bg-card); color: var(--text-primary); border: 3px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 13px; resize: vertical;"></textarea>
                 </div>
 
                 <div style="display: flex; gap: 10px;">
                     <button type="button" onclick="submitCommentForm()"
-                            style="flex: 1; padding: 12px; background-color: #2b2b2b; color: #fff; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
+                            style="flex: 1; padding: 12px; background-color: var(--border-color); color: var(--bg-card); border: 3px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
                         Enregistrer
                     </button>
                     <button type="button" onclick="closeCommentModal()"
-                            style="padding: 12px 20px; background-color: #fff; color: #2b2b2b; border: 3px solid #2b2b2b; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
+                            style="padding: 12px 20px; background-color: var(--bg-card); color: var(--text-primary); border: 3px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
                         Annuler
                     </button>
                 </div>
