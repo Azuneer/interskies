@@ -93,6 +93,9 @@ if ($filterFormat !== 'all') {
     });
 }
 
+// Réindexer le tableau après les filtres
+$filteredPhotos = array_values($filteredPhotos);
+
 // Trier les photos
 usort($filteredPhotos, function($a, $b) use ($sortBy) {
     switch ($sortBy) {
@@ -120,6 +123,7 @@ foreach ($filteredPhotos as &$photo) {
     });
     $photo['comment_count'] = count($photoComments);
 }
+unset($photo); // Détruire la référence pour éviter les conflits
 
 // Calculer les statistiques
 $totalPhotos = count($filteredPhotos);
