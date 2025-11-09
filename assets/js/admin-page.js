@@ -1,5 +1,26 @@
 // Fonctions pour la page d'administration
 
+// Détection automatique du mode jour/nuit
+function setThemeBasedOnTime() {
+    const currentHour = new Date().getHours();
+
+    // Mode sombre de 19h à 7h
+    if (currentHour >= 19 || currentHour < 7) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    // Appliquer le thème selon l'heure
+    setThemeBasedOnTime();
+
+    // Vérifier et mettre à jour le thème toutes les minutes
+    setInterval(setThemeBasedOnTime, 60000);
+});
+
 // Ouvrir le modal pour ajouter un commentaire
 function showAddCommentForm(photoId) {
     const modal = document.getElementById('comment-modal');

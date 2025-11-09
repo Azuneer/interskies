@@ -2,8 +2,26 @@
 let currentPhotoId = null;
 let isAdminMode = false;
 
+// Détection automatique du mode jour/nuit
+function setThemeBasedOnTime() {
+    const currentHour = new Date().getHours();
+
+    // Mode sombre de 19h à 7h
+    if (currentHour >= 19 || currentHour < 7) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
+    // Appliquer le thème selon l'heure
+    setThemeBasedOnTime();
+
+    // Vérifier et mettre à jour le thème toutes les minutes
+    setInterval(setThemeBasedOnTime, 60000);
+
     setupEventListeners();
 });
 
@@ -11,25 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupEventListeners() {
     // Clic sur les photos pour ouvrir le modal de commentaires
     document.querySelectorAll('.photo-item').forEach(photoItem => {
-        photoItem.addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-manage-comments')) return;
-
+        photoItem.addEventListener('click', function() {
             const photoId = this.dataset.id;
-            const photoName = this.querySelector('.photo-name').textContent;
+            const filename = this.dataset.filename;
+            const imgSrc = this.querySelector('img').src;
 
-            openCommentsModal(photoId, photoName);
-        });
-    });
-
-    // Boutons de gestion des commentaires (pour le mode admin)
-    document.querySelectorAll('.btn-manage-comments').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const photoId = this.dataset.photoId;
-            const photoItem = this.closest('.photo-item');
-            const photoName = photoItem.querySelector('.photo-name').textContent;
-
-            openCommentsModal(photoId, photoName);
+            openCommentsModal(photoId, filename, imgSrc);
         });
     });
 
@@ -58,16 +63,28 @@ function setupEventListeners() {
 }
 
 // Ouvrir le modal de commentaires
-function openCommentsModal(photoId, photoName) {
+function openCommentsModal(photoId, filename, imgSrc) {
     currentPhotoId = photoId;
 
     const modal = document.getElementById('comments-modal');
+    const modalPhotoImg = document.getElementById('modal-photo-img');
+    const modalPhotoFilename = document.getElementById('modal-photo-filename');
     const modalTitle = document.getElementById('modal-photo-title');
 
-    modalTitle.textContent = `Commentaires - ${photoName}`;
+    // Définir l'image
+    modalPhotoImg.src = imgSrc;
+    modalPhotoImg.alt = filename;
 
+    // Définir le nom du fichier
+    modalPhotoFilename.textContent = filename;
+
+    // Définir le titre
+    modalTitle.textContent = 'Commentaires';
+
+    // Charger les commentaires
     loadComments(photoId);
 
+    // Afficher le modal
     modal.style.display = 'block';
 }
 
@@ -81,6 +98,10 @@ function closeCommentsModal() {
     // Réinitialiser le formulaire
     document.getElementById('comment-content').value = '';
     document.getElementById('comment-author').value = '';
+
+    // Réinitialiser l'image
+    document.getElementById('modal-photo-img').src = '';
+    document.getElementById('modal-photo-filename').textContent = '';
 }
 
 // Charger les commentaires
@@ -91,7 +112,7 @@ function loadComments(photoId) {
             const commentsList = document.getElementById('comments-list');
 
             if (comments.length === 0) {
-                commentsList.innerHTML = '<p style="color: #888; text-align: center; padding: 20px;">Aucun commentaire pour cette photo.</p>';
+                commentsList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px; font-size: 13px;">Aucun commentaire pour cette photo.</p>';
                 return;
             }
 
@@ -105,7 +126,7 @@ function loadComments(photoId) {
                         </div>
                         <div class="comment-content">${escapeHtml(comment.content)}</div>
                         <div class="comment-actions" style="display: ${isAdminMode ? 'flex' : 'none'}">
-                            <button class="btn-edit" onclick="editComment(${comment.id}, '${escapeHtml(comment.content)}', '${escapeHtml(comment.author)}')">Modifier</button>
+                            <button class="btn-edit" onclick="editComment(${comment.id}, '${escapeHtml(comment.content).replace(/'/g, "\\'")}', '${escapeHtml(comment.author).replace(/'/g, "\\'")}')">Modifier</button>
                             <button class="btn-delete" onclick="deleteComment(${comment.id})">Supprimer</button>
                         </div>
                     </div>
@@ -117,7 +138,7 @@ function loadComments(photoId) {
         .catch(error => {
             console.error('Erreur lors du chargement des commentaires:', error);
             const commentsList = document.getElementById('comments-list');
-            commentsList.innerHTML = '<p style="color: #ff4444; text-align: center; padding: 20px;">Erreur lors du chargement des commentaires.</p>';
+            commentsList.innerHTML = '<p style="color: var(--accent-pink); text-align: center; padding: 20px; font-size: 13px;">Erreur lors du chargement des commentaires.</p>';
         });
 }
 
