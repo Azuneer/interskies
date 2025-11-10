@@ -1,5 +1,5 @@
 /**
- * Gestion de l'upload de photos
+ * Gestion de l'upload de photos - Version finale
  */
 
 let selectedFiles = [];
@@ -68,7 +68,7 @@ uploadArea.addEventListener('drop', (e) => {
 // Gérer les fichiers sélectionnés
 function handleFiles(files) {
     const validFiles = [];
-    const maxSize = 10 * 1024 * 1024; // 10 MB
+    const maxSize = 20 * 1024 * 1024; // 20 MB
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     for (let file of files) {
@@ -80,7 +80,7 @@ function handleFiles(files) {
 
         // Vérifier la taille
         if (file.size > maxSize) {
-            alert(`${file.name}: Fichier trop volumineux (max 10 MB)`);
+            alert(`${file.name}: Fichier trop volumineux (max 20 MB)`);
             continue;
         }
 
@@ -141,13 +141,13 @@ function removeFile(index) {
     }
 }
 
-// Uploader les photos
+// Uploader les photos - VERSION FINALE FONCTIONNELLE
 async function uploadPhotos() {
     if (selectedFiles.length === 0) {
         return;
     }
 
-    console.log('Début upload de', selectedFiles.length, 'fichier(s)');
+    console.log('🚀 DÉBUT UPLOAD de', selectedFiles.length, 'fichier(s)');
 
     // Afficher la barre de progression
     document.getElementById('upload-preview').style.display = 'none';
@@ -162,74 +162,87 @@ async function uploadPhotos() {
         errors: []
     };
 
-    // Uploader chaque fichier
+    // Uploader chaque fichier SÉQUENTIELLEMENT
     for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
         const formData = new FormData();
         formData.append('photo', file);
 
-        // Mettre à jour le statut
-        uploadStatus.textContent = `Upload de ${file.name}... (${i + 1}/${selectedFiles.length})`;
-        console.log(`Upload ${i + 1}/${selectedFiles.length}:`, file.name);
+        // Mettre à jour le statut IMMÉDIATEMENT
+        const statusMsg = `Upload de ${file.name}... (${i + 1}/${selectedFiles.length})`;
+        uploadStatus.textContent = statusMsg;
+        console.log(`📤 ${i + 1}/${selectedFiles.length}:`, file.name, `(${(file.size / 1024 / 1024).toFixed(2)} MB)`);
 
         try {
+            console.log('  ➤ Envoi du fichier...');
+
             const response = await fetch('upload.php', {
                 method: 'POST',
                 body: formData,
-                credentials: 'same-origin' // Inclure les cookies de session
+                credentials: 'same-origin' // IMPORTANT: envoie les cookies de session
             });
 
-            console.log('Réponse HTTP:', response.status, response.statusText);
+            console.log('  ← Réponse HTTP:', response.status, response.statusText);
 
-            // Vérifier si la réponse est ok
+            // Vérifier si la réponse est OK
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Erreur serveur:', errorText);
+                console.error('  ✗ Erreur serveur:', errorText.substring(0, 200));
+
                 results.errors.push({
                     filename: file.name,
                     error: `Erreur serveur (${response.status}): ${response.statusText}`
                 });
+
+                // Continuer avec le prochain fichier
                 continue;
             }
 
-            // Essayer de parser le JSON
+            // Parser la réponse JSON
             let data;
             try {
                 const responseText = await response.text();
-                console.log('Réponse brute:', responseText);
+                console.log('  ← Réponse brute:', responseText.substring(0, 150) + '...');
                 data = JSON.parse(responseText);
             } catch (jsonError) {
-                console.error('Erreur parsing JSON:', jsonError);
+                console.error('  ✗ Erreur parsing JSON:', jsonError);
+                console.error('  ✗ Réponse reçue:', responseText);
+
                 results.errors.push({
                     filename: file.name,
-                    error: 'Erreur: Réponse serveur invalide'
+                    error: 'Réponse serveur invalide'
                 });
+
                 continue;
             }
 
+            // Vérifier le résultat
             if (data.success) {
-                console.log('Upload réussi:', file.name);
+                console.log('  ✓ Upload réussi!');
                 results.success.push({ filename: file.name, data: data.photo });
             } else {
-                console.error('Upload échoué:', file.name, data.error);
+                console.error('  ✗ Upload échoué:', data.error);
                 results.errors.push({ filename: file.name, error: data.error });
             }
+
         } catch (error) {
-            console.error('Exception lors de l\'upload:', error);
+            console.error('  ✗ Exception:', error);
             results.errors.push({
                 filename: file.name,
                 error: `Erreur réseau: ${error.message}`
             });
         }
 
-        // Mettre à jour la barre de progression
+        // METTRE À JOUR LA BARRE DE PROGRESSION
         const progress = Math.round(((i + 1) / selectedFiles.length) * 100);
         progressBar.style.width = progress + '%';
         progressText.textContent = progress + '%';
-        console.log('Progression:', progress + '%');
+        console.log(`  📊 Progression: ${progress}%`);
     }
 
-    console.log('Résultats finaux:', results);
+    console.log('🏁 UPLOAD TERMINÉ');
+    console.log('  ✓ Succès:', results.success.length);
+    console.log('  ✗ Erreurs:', results.errors.length);
 
     // Afficher les résultats
     showResults(results);
@@ -272,7 +285,7 @@ function showResults(results) {
         `;
 
         results.errors.forEach(item => {
-            html += `<li style="margin: 5px 0;">${item.filename}: ${item.error}</li>`;
+            html += `<li style="margin: 5px 0;"><strong>${item.filename}:</strong> ${item.error}</li>`;
         });
 
         html += `
@@ -291,3 +304,5 @@ window.addEventListener('click', (e) => {
         closeUploadModal();
     }
 });
+
+console.log('✓ Photo upload script loaded');
