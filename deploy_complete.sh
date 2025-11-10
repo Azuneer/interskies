@@ -175,8 +175,8 @@ if [ ! -f /etc/apt/sources.list.d/php.list ]; then
     print_success "Dépôt PHP ajouté"
 fi
 
-# Installer PHP (dernière version) et extensions
-print_warning "Installation de PHP et extensions..."
+# Installer PHP (dernière version) et extensions de base
+print_warning "Installation de PHP et extensions de base..."
 if ! apt-get install -y \
     php-fpm \
     php-sqlite3 \
@@ -186,7 +186,6 @@ if ! apt-get install -y \
     php-xml \
     php-curl \
     php-gd \
-    php-opcache \
     php-zip; then
     print_error "Échec de l'installation de PHP"
     exit 1
@@ -206,6 +205,10 @@ if [ -z "$PHP_VERSION" ]; then
 fi
 
 print_success "PHP $PHP_VERSION installé"
+
+# Installer opcache pour la version détectée
+print_warning "Installation de OPcache pour PHP ${PHP_VERSION}..."
+apt-get install -y php${PHP_VERSION}-opcache || print_warning "OPcache non installé (optionnel)"
 
 # Vérifier que PHP-FPM est bien installé
 if ! systemctl list-unit-files | grep -q "php${PHP_VERSION}-fpm"; then
