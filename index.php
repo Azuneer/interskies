@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/config/database.php';
 
 $db = getDB();
@@ -54,9 +55,10 @@ $filterFormat = $_GET['format'] ?? 'all';
 $sortBy = $_GET['sort'] ?? 'recent';
 
 // Construire la requête SQL avec filtres
-$query = "SELECT p.*, COUNT(c.id) as comment_count
+$query = "SELECT p.*, COUNT(DISTINCT c.id) as comment_count, COUNT(DISTINCT l.id) as like_count
           FROM photos p
           LEFT JOIN comments c ON p.id = c.photo_id
+          LEFT JOIN likes l ON p.id = l.photo_id
           WHERE 1=1";
 
 $params = [];
@@ -92,6 +94,12 @@ switch ($sortBy) {
         break;
     case 'oldest':
         $query .= " ORDER BY p.created_at ASC";
+        break;
+    case 'likes_desc':
+        $query .= " ORDER BY like_count DESC, p.created_at DESC";
+        break;
+    case 'likes_asc':
+        $query .= " ORDER BY like_count ASC, p.created_at DESC";
         break;
     case 'size_desc':
         $query .= " ORDER BY p.size DESC";
@@ -172,6 +180,8 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
                         <select name="sort" id="sort" onchange="this.form.submit()">
                             <option value="recent" <?= $sortBy === 'recent' ? 'selected' : '' ?>>Plus récent</option>
                             <option value="oldest" <?= $sortBy === 'oldest' ? 'selected' : '' ?>>Plus ancien</option>
+                            <option value="likes_desc" <?= $sortBy === 'likes_desc' ? 'selected' : '' ?>>Plus aimés (♥↓)</option>
+                            <option value="likes_asc" <?= $sortBy === 'likes_asc' ? 'selected' : '' ?>>Moins aimés (♥↑)</option>
                             <option value="size_desc" <?= $sortBy === 'size_desc' ? 'selected' : '' ?>>Taille (↓)</option>
                             <option value="size_asc" <?= $sortBy === 'size_asc' ? 'selected' : '' ?>>Taille (↑)</option>
                             <option value="name_asc" <?= $sortBy === 'name_asc' ? 'selected' : '' ?>>Nom (A-Z)</option>
@@ -199,11 +209,22 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
                         <img src="photos/<?= htmlspecialchars($photo['filename']) ?>"
                              alt="<?= htmlspecialchars($photo['title'] ?? $photo['filename']) ?>"
                              loading="lazy">
-                        <?php if ($photo['comment_count'] > 0): ?>
-                            <div class="photo-comment-count">
-                                💬 <?= $photo['comment_count'] ?>
-                            </div>
-                        <?php endif; ?>
+                        <div class="photo-stats">
+                            <?php if ($photo['like_count'] > 0): ?>
+                                <div class="photo-like-count" data-photo-id="<?= $photo['id'] ?>">
+                                    <span class="like-icon">🤍</span> <span class="like-number"><?= $photo['like_count'] ?></span>
+                                </div>
+                            <?php else: ?>
+                                <div class="photo-like-count" data-photo-id="<?= $photo['id'] ?>" style="display: none;">
+                                    <span class="like-icon">🤍</span> <span class="like-number">0</span>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($photo['comment_count'] > 0): ?>
+                                <div class="photo-comment-count">
+                                    💬 <?= $photo['comment_count'] ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -226,6 +247,14 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
             <!-- Comments section (right) -->
             <div class="modal-comments-section">
                 <h2 id="modal-photo-title">Commentaires</h2>
+
+                <!-- Bouton Like -->
+                <div class="modal-like-section">
+                    <button id="modal-like-btn" class="like-button" onclick="toggleLike()">
+                        <span class="like-icon">🤍</span>
+                        <span id="modal-like-count">0</span>
+                    </button>
+                </div>
 
                 <div id="comments-list"></div>
 

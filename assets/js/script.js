@@ -123,6 +123,9 @@ function openCommentsModal(photoId, filename, imgSrc) {
     // Charger les commentaires
     loadComments(photoId);
 
+    // Charger les likes
+    loadLikes(photoId);
+
     // Afficher le modal
     modal.style.display = 'block';
 }
@@ -325,6 +328,110 @@ function updateCommentCount(photoId) {
         .catch(error => {
             console.error('Erreur lors de la mise à jour du compteur:', error);
         });
+}
+
+// ============================================
+// Gestion des Likes
+// ============================================
+
+// Charger les likes d'une photo
+function loadLikes(photoId) {
+    fetch(`api/likes.php?photo_id=${photoId}`)
+        .then(response => response.json())
+        .then(data => {
+            const modalLikeBtn = document.getElementById('modal-like-btn');
+            const modalLikeCount = document.getElementById('modal-like-count');
+            const likeIcon = modalLikeBtn.querySelector('.like-icon');
+
+            // Mettre à jour le compteur
+            modalLikeCount.textContent = data.like_count;
+
+            // Mettre à jour l'icône selon l'état
+            if (data.has_liked) {
+                likeIcon.textContent = '❤️';
+                modalLikeBtn.classList.add('liked');
+            } else {
+                likeIcon.textContent = '🤍';
+                modalLikeBtn.classList.remove('liked');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des likes:', error);
+        });
+}
+
+// Toggle like (ajouter ou retirer)
+function toggleLike() {
+    if (!currentPhotoId) {
+        alert('Erreur: Aucune photo sélectionnée.');
+        return;
+    }
+
+    fetch('api/likes.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            photo_id: currentPhotoId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Erreur: ' + data.error);
+            return;
+        }
+
+        // Mettre à jour le modal
+        const modalLikeBtn = document.getElementById('modal-like-btn');
+        const modalLikeCount = document.getElementById('modal-like-count');
+        const likeIcon = modalLikeBtn.querySelector('.like-icon');
+
+        modalLikeCount.textContent = data.like_count;
+
+        if (data.has_liked) {
+            likeIcon.textContent = '❤️';
+            modalLikeBtn.classList.add('liked');
+        } else {
+            likeIcon.textContent = '🤍';
+            modalLikeBtn.classList.remove('liked');
+        }
+
+        // Mettre à jour le compteur sur la miniature
+        updateLikeCountOnThumbnail(currentPhotoId, data.like_count);
+    })
+    .catch(error => {
+        console.error('Erreur lors du toggle du like:', error);
+        alert('Erreur lors du like.');
+    });
+}
+
+// Mettre à jour le compteur de likes sur la miniature
+function updateLikeCountOnThumbnail(photoId, likeCount) {
+    const photoItem = document.querySelector(`.photo-item[data-id="${photoId}"]`);
+    if (!photoItem) return;
+
+    let likeElement = photoItem.querySelector('.photo-like-count');
+
+    if (!likeElement) {
+        // Créer l'élément s'il n'existe pas
+        likeElement = document.createElement('div');
+        likeElement.className = 'photo-like-count';
+        likeElement.dataset.photoId = photoId;
+
+        const stats = photoItem.querySelector('.photo-stats');
+        if (stats) {
+            stats.insertBefore(likeElement, stats.firstChild);
+        }
+    }
+
+    if (likeCount === 0) {
+        likeElement.style.display = 'none';
+    } else {
+        likeElement.style.display = 'flex';
+        likeElement.innerHTML = `<span class="like-icon">🤍</span> <span class="like-number">${likeCount}</span>`;
+    }
 }
 
 // Fonctions utilitaires

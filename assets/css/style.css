@@ -324,10 +324,35 @@ body.dark-mode .photo-item img {
     filter: grayscale(0.2) contrast(0.95) brightness(0.9);
 }
 
-.photo-comment-count {
+.photo-stats {
     position: absolute;
     top: 20px;
     left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.photo-like-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--accent-purple);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border: 2px solid var(--border-color);
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 3px 3px 0 var(--shadow-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.photo-like-count:hover {
+    transform: scale(1.05);
+}
+
+.photo-comment-count {
     background-color: var(--accent-pink);
     color: var(--text-primary);
     padding: 6px 12px;
@@ -442,6 +467,48 @@ body.dark-mode .photo-item img {
     padding-bottom: 15px;
     border-bottom: 3px solid var(--border-color);
     text-transform: uppercase;
+}
+
+/* Like Button in Modal */
+.modal-like-section {
+    margin-bottom: 25px;
+}
+
+.like-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+    background-color: var(--bg-card);
+    border: 3px solid var(--border-color);
+    color: var(--text-primary);
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 0 var(--shadow-color);
+}
+
+.like-button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 var(--accent-purple);
+}
+
+.like-button.liked {
+    background-color: var(--accent-purple);
+    border-color: var(--border-color);
+}
+
+.like-button.liked:hover {
+    box-shadow: 8px 8px 0 var(--accent-pink);
+}
+
+.like-button .like-icon {
+    font-size: 24px;
+    line-height: 1;
 }
 
 /* Comments List */

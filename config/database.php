@@ -59,6 +59,16 @@ function initDB() {
         FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE
     )");
 
+    // Table likes
+    $db->exec("CREATE TABLE IF NOT EXISTS likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        photo_id INTEGER NOT NULL,
+        session_id TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+        UNIQUE(photo_id, session_id)
+    )");
+
     // Créer l'utilisateur admin par défaut si n'existe pas
     $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
     $stmt->execute(['admin']);
