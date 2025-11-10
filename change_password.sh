@@ -64,47 +64,49 @@ fi
 
 print_warning "Changement du mot de passe pour: $USERNAME"
 
+# Obtenir le répertoire absolu du script
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # Créer un script PHP temporaire
 TMP_SCRIPT="/tmp/change_pwd_$$.php"
 
-cat > "$TMP_SCRIPT" << 'EOFPHP'
+cat > "$TMP_SCRIPT" << EOFPHP
 <?php
-require_once __DIR__ . '/config/database.php';
+require_once '$SCRIPT_DIR/config/database.php';
 
-$username = $argv[1];
-$password = $argv[2];
+\$username = \$argv[1];
+\$password = \$argv[2];
 
 try {
-    $db = getDB();
+    \$db = getDB();
 
     // Vérifier que l'utilisateur existe
-    $stmt = $db->prepare("SELECT id FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
+    \$stmt = \$db->prepare("SELECT id FROM users WHERE username = ?");
+    \$stmt->execute([\$username]);
+    \$user = \$stmt->fetch();
 
-    if (!$user) {
+    if (!\$user) {
         echo "ERROR: Utilisateur non trouvé\n";
         exit(1);
     }
 
     // Changer le mot de passe
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE username = ?");
+    \$passwordHash = password_hash(\$password, PASSWORD_DEFAULT);
+    \$stmt = \$db->prepare("UPDATE users SET password_hash = ? WHERE username = ?");
 
-    if ($stmt->execute([$passwordHash, $username])) {
+    if (\$stmt->execute([\$passwordHash, \$username])) {
         echo "SUCCESS\n";
     } else {
         echo "ERROR: Échec de la mise à jour\n";
         exit(1);
     }
-} catch (Exception $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
+} catch (Exception \$e) {
+    echo "ERROR: " . \$e->getMessage() . "\n";
     exit(1);
 }
 EOFPHP
 
 # Exécuter le script PHP
-cd "$(dirname "$0")"
 RESULT=$(php "$TMP_SCRIPT" "$USERNAME" "$NEW_PASSWORD" 2>&1)
 
 # Supprimer le script temporaire
