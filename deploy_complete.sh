@@ -133,6 +133,7 @@ apt-get install -y \
     vim \
     htop \
     unzip \
+    rsync \
     gnupg2 \
     ca-certificates \
     lsb-release
@@ -175,7 +176,8 @@ if [ ! -f /etc/apt/sources.list.d/php.list ]; then
 fi
 
 # Installer PHP (dernière version) et extensions
-apt-get install -y \
+print_warning "Installation de PHP et extensions..."
+if ! apt-get install -y \
     php-fpm \
     php-sqlite3 \
     php-cli \
@@ -185,11 +187,31 @@ apt-get install -y \
     php-curl \
     php-gd \
     php-opcache \
-    php-zip
+    php-zip; then
+    print_error "Échec de l'installation de PHP"
+    exit 1
+fi
 
 # Détecter la version PHP installée
-PHP_VERSION=$(php -v | head -n 1 | cut -d " " -f 2 | cut -d "." -f 1,2)
+if ! command -v php &> /dev/null; then
+    print_error "PHP n'est pas installé correctement"
+    exit 1
+fi
+
+PHP_VERSION=$(php -v 2>/dev/null | head -n 1 | cut -d " " -f 2 | cut -d "." -f 1,2)
+
+if [ -z "$PHP_VERSION" ]; then
+    print_error "Impossible de détecter la version PHP"
+    exit 1
+fi
+
 print_success "PHP $PHP_VERSION installé"
+
+# Vérifier que PHP-FPM est bien installé
+if ! systemctl list-unit-files | grep -q "php${PHP_VERSION}-fpm"; then
+    print_error "PHP-FPM ${PHP_VERSION} n'est pas installé"
+    exit 1
+fi
 
 ################################################################################
 # 4. CONFIGURATION PHP
@@ -300,12 +322,20 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ "$SCRIPT_DIR" != "$WEB_ROOT" ]; then
     print_warning "Copie des fichiers depuis $SCRIPT_DIR vers $WEB_ROOT"
 
-    # Copier tous les fichiers nécessaires
-    rsync -av --exclude='.git' \
+    # Copier tous les fichiers nécessaires (rsync installé dans les paquets de base)
+    if rsync -av --exclude='.git' \
               --exclude='deploy_*.sh' \
               --exclude='*.md' \
               --exclude='nginx.conf' \
-              "$SCRIPT_DIR/" "$WEB_ROOT/"
+              "$SCRIPT_DIR/" "$WEB_ROOT/" 2>/dev/null; then
+        print_success "Fichiers copiés avec rsync"
+    else
+        # Fallback sur cp si rsync échoue
+        print_warning "rsync a échoué, utilisation de cp..."
+        cp -r "$SCRIPT_DIR/"* "$WEB_ROOT/" 2>/dev/null || true
+        rm -rf "$WEB_ROOT/.git" "$WEB_ROOT/deploy_"*.sh "$WEB_ROOT/"*.md "$WEB_ROOT/nginx.conf" 2>/dev/null || true
+        print_success "Fichiers copiés avec cp"
+    fi
 fi
 
 # Créer les dossiers
