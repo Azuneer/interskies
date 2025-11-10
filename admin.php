@@ -92,6 +92,9 @@ $totalComments = $stmt->fetchColumn();
 
         <div class="admin-nav">
             <a href="index.php">← Retour à la galerie</a>
+            <button onclick="showUploadModal()" style="margin-left: 15px; padding: 12px 25px; background-color: var(--accent-purple); color: var(--bg-card); border: 3px solid var(--border-color); text-decoration: none; font-weight: 700; font-size: 13px; text-transform: uppercase; box-shadow: 4px 4px 0 var(--shadow-color); cursor: pointer; font-family: 'Space Mono', monospace;">
+                📷 Ajouter des photos
+            </button>
             <div style="flex: 1;"></div>
             <div style="color: var(--text-secondary); font-size: 13px; padding: 12px 0;">
                 <?= $totalPhotos ?> photos • <?= $totalComments ?> commentaires • <?= number_format($totalSize / 1024 / 1024, 2) ?> MB
@@ -194,6 +197,54 @@ $totalComments = $stmt->fetchColumn();
         </div>
     </div>
 
+    <!-- Modal pour uploader des photos -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="modal-close" onclick="closeUploadModal()">&times;</span>
+            <h2>📷 Ajouter des photos</h2>
+
+            <div id="upload-area" style="margin-top: 20px; border: 3px dashed var(--border-color); padding: 40px; text-align: center; background-color: var(--bg-card); cursor: pointer; transition: all 0.3s;">
+                <input type="file" id="photo-input" accept="image/jpeg,image/png,image/gif,image/webp" multiple style="display: none;">
+
+                <div id="upload-prompt">
+                    <div style="font-size: 48px; margin-bottom: 15px;">📁</div>
+                    <p style="font-size: 16px; font-weight: 700; margin-bottom: 10px;">Cliquez ou glissez des photos ici</p>
+                    <p style="font-size: 13px; color: var(--text-secondary);">
+                        Formats: JPG, PNG, GIF, WEBP • Taille max: 10 MB
+                    </p>
+                </div>
+
+                <div id="upload-preview" style="display: none; margin-top: 20px;">
+                    <div id="preview-images" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;"></div>
+                    <button type="button" onclick="uploadPhotos()" id="upload-btn"
+                            style="padding: 15px 30px; background-color: var(--accent-purple); color: var(--bg-card); border: 3px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 var(--shadow-color);">
+                        📤 Uploader (<span id="photo-count">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <div id="upload-progress" style="display: none; margin-top: 20px;">
+                <div style="background-color: var(--bg-card); border: 3px solid var(--border-color); padding: 20px;">
+                    <p style="font-weight: 700; margin-bottom: 10px;">Upload en cours...</p>
+                    <div style="background-color: var(--bg-secondary); height: 30px; border: 3px solid var(--border-color); position: relative; overflow: hidden;">
+                        <div id="progress-bar" style="height: 100%; background-color: var(--accent-purple); width: 0%; transition: width 0.3s;"></div>
+                        <div id="progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 700; font-size: 13px;">0%</div>
+                    </div>
+                    <p id="upload-status" style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);"></p>
+                </div>
+            </div>
+
+            <div id="upload-results" style="display: none; margin-top: 20px;">
+                <div id="results-content"></div>
+                <button type="button" onclick="closeUploadModal(); location.reload();"
+                        style="margin-top: 15px; padding: 12px 25px; background-color: var(--border-color); color: var(--bg-card); border: 3px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;">
+                    Fermer et actualiser
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/admin-page.js"></script>
+    <script src="assets/js/photo-upload.js"></script>
 </body>
 </html>
