@@ -67,23 +67,25 @@ fi
 
 print_header "📍 ÉTAPE 1/5 - Détection de l'installation"
 
-# Trouver le répertoire web
+# Trouver le répertoire web via nginx d'abord (plus fiable)
 WEB_ROOT=""
-if [ -d "/var/www/interskies.com" ]; then
-    WEB_ROOT="/var/www/interskies.com"
-elif [ -d "/var/www/interskies" ]; then
-    WEB_ROOT="/var/www/interskies"
-else
-    # Chercher via nginx
-    for site in /etc/nginx/sites-enabled/*; do
-        if [ -f "$site" ] && [ "$(basename $site)" != "default" ]; then
-            ROOT=$(grep -E "^\s*root\s+" "$site" | head -1 | awk '{print $2}' | tr -d ';')
-            if [ -n "$ROOT" ] && [ -d "$ROOT" ]; then
-                WEB_ROOT="$ROOT"
-                break
-            fi
+for site in /etc/nginx/sites-enabled/*; do
+    if [ -f "$site" ] && [ "$(basename $site)" != "default" ]; then
+        ROOT=$(grep -E "^\s*root\s+" "$site" | head -1 | awk '{print $2}' | tr -d ';')
+        if [ -n "$ROOT" ] && [ -d "$ROOT" ]; then
+            WEB_ROOT="$ROOT"
+            break
         fi
-    done
+    fi
+done
+
+# Si pas trouvé via nginx, chercher manuellement
+if [ -z "$WEB_ROOT" ]; then
+    if [ -d "/var/www/interskies.com" ]; then
+        WEB_ROOT="/var/www/interskies.com"
+    elif [ -d "/var/www/interskies" ]; then
+        WEB_ROOT="/var/www/interskies"
+    fi
 fi
 
 if [ -z "$WEB_ROOT" ]; then
@@ -113,7 +115,16 @@ if [ ! -f "$SCRIPT_DIR/upload.php" ]; then
     print_warning "Assurez-vous d'être dans le dépôt git du projet"
     exit 1
 fi
-print_success "Fichiers source trouvés: $SCRIPT_DIR"
+
+# Vérifier si on est déjà dans le bon répertoire
+if [ "$SCRIPT_DIR" = "$WEB_ROOT" ]; then
+    print_warning "Script lancé depuis le répertoire web lui-même"
+    print_info "Les fichiers sont déjà au bon endroit, pas besoin de copier"
+    SKIP_COPY=1
+else
+    print_success "Fichiers source: $SCRIPT_DIR → $WEB_ROOT"
+    SKIP_COPY=0
+fi
 
 ################################################################################
 # ÉTAPE 2: COPIE DES FICHIERS
@@ -128,16 +139,36 @@ mkdir -p "$WEB_ROOT/database"
 
 print_success "Dossiers créés"
 
-# Copier les fichiers
-cp -v "$SCRIPT_DIR/upload.php" "$WEB_ROOT/"
-print_success "upload.php copié"
+# Copier les fichiers seulement si nécessaire
+if [ $SKIP_COPY -eq 1 ]; then
+    print_success "Fichiers déjà en place (pas de copie nécessaire)"
 
-cp -v "$SCRIPT_DIR/assets/js/photo-upload.js" "$WEB_ROOT/assets/js/"
-print_success "photo-upload.js copié"
+    # Vérifier quand même que les fichiers existent
+    if [ -f "$WEB_ROOT/upload.php" ]; then
+        print_success "upload.php présent"
+    else
+        print_error "upload.php MANQUANT"
+        exit 1
+    fi
 
-if [ -f "$SCRIPT_DIR/admin.php" ]; then
-    cp -v "$SCRIPT_DIR/admin.php" "$WEB_ROOT/"
-    print_success "admin.php copié"
+    if [ -f "$WEB_ROOT/assets/js/photo-upload.js" ]; then
+        print_success "photo-upload.js présent"
+    else
+        print_error "photo-upload.js MANQUANT"
+        exit 1
+    fi
+else
+    # Copier les fichiers
+    cp -v "$SCRIPT_DIR/upload.php" "$WEB_ROOT/"
+    print_success "upload.php copié"
+
+    cp -v "$SCRIPT_DIR/assets/js/photo-upload.js" "$WEB_ROOT/assets/js/"
+    print_success "photo-upload.js copié"
+
+    if [ -f "$SCRIPT_DIR/admin.php" ]; then
+        cp -v "$SCRIPT_DIR/admin.php" "$WEB_ROOT/"
+        print_success "admin.php copié"
+    fi
 fi
 
 ################################################################################
