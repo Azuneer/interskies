@@ -1,6 +1,6 @@
 # Interskies - Galerie de Photos du Ciel
 
-Application web indie grunge/goth pour afficher une galerie de photos du ciel avec système de commentaires et administration sécurisée.
+Application web pour afficher une galerie de photos du ciel avec système de commentaires et administration sécurisée.
 
 ## Fonctionnalités
 
@@ -8,7 +8,7 @@ Application web indie grunge/goth pour afficher une galerie de photos du ciel av
 - 🎨 Thème automatique jour/nuit (mode sombre 19h-7h)
 - 🔍 Filtres (taille, format, tri)
 - 💬 Système de commentaires CRUD complet
-- 👤 Administration sécurisée avec authentification
+- 👤 Administration sécurisée avec authentification et upload
 - 📱 Design responsive
 - 🔒 Sécurité production (SQLite, sessions, headers)
 
