@@ -95,6 +95,12 @@ switch ($sortBy) {
     case 'oldest':
         $query .= " ORDER BY p.created_at ASC";
         break;
+    case 'likes_desc':
+        $query .= " ORDER BY like_count DESC, p.created_at DESC";
+        break;
+    case 'likes_asc':
+        $query .= " ORDER BY like_count ASC, p.created_at DESC";
+        break;
     case 'size_desc':
         $query .= " ORDER BY p.size DESC";
         break;
@@ -174,6 +180,8 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
                         <select name="sort" id="sort" onchange="this.form.submit()">
                             <option value="recent" <?= $sortBy === 'recent' ? 'selected' : '' ?>>Plus récent</option>
                             <option value="oldest" <?= $sortBy === 'oldest' ? 'selected' : '' ?>>Plus ancien</option>
+                            <option value="likes_desc" <?= $sortBy === 'likes_desc' ? 'selected' : '' ?>>Plus aimés (♥↓)</option>
+                            <option value="likes_asc" <?= $sortBy === 'likes_asc' ? 'selected' : '' ?>>Moins aimés (♥↑)</option>
                             <option value="size_desc" <?= $sortBy === 'size_desc' ? 'selected' : '' ?>>Taille (↓)</option>
                             <option value="size_asc" <?= $sortBy === 'size_asc' ? 'selected' : '' ?>>Taille (↑)</option>
                             <option value="name_asc" <?= $sortBy === 'name_asc' ? 'selected' : '' ?>>Nom (A-Z)</option>
