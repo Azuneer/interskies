@@ -2,6 +2,44 @@
 let currentPhotoId = null;
 let isAdminMode = false;
 
+// ============================================
+// Son au survol des photos
+// ============================================
+
+const hoverSound = new Audio('assets/sounds/click.wav');
+hoverSound.volume = 0.3;
+hoverSound.preload = 'auto';
+
+let audioUnlocked = false;
+
+function unlockAudio() {
+    if (audioUnlocked) return;
+    
+    hoverSound.play().then(() => {
+        hoverSound.pause();
+        hoverSound.currentTime = 0;
+        audioUnlocked = true;
+    }).catch(() => {});
+}
+
+document.body.addEventListener('click', unlockAudio, { once: true });
+document.body.addEventListener('touchstart', unlockAudio, { once: true });
+
+function playHoverSound() {
+    if (!audioUnlocked) return;
+    
+    hoverSound.currentTime = 0;
+    hoverSound.play().catch(() => {});
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const photoItems = document.querySelectorAll('.photo-item');
+    
+    photoItems.forEach(item => {
+        item.addEventListener('mouseenter', playHoverSound);
+    });
+});
+
 // Détection automatique du mode jour/nuit
 function setThemeBasedOnTime() {
     const currentHour = new Date().getHours();
@@ -29,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupEventListeners() {
     // Clic sur les photos pour ouvrir le modal de commentaires
     document.querySelectorAll('.photo-item').forEach(photoItem => {
+        photoItem.addEventListener('mouseenter', playHoverSound);
         photoItem.addEventListener('click', function() {
             const photoId = this.dataset.id;
             const filename = this.dataset.filename;
