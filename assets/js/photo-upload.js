@@ -175,7 +175,8 @@ async function uploadPhotos() {
         try {
             const response = await fetch('upload.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'same-origin' // Inclure les cookies de session
             });
 
             console.log('Réponse HTTP:', response.status, response.statusText);
