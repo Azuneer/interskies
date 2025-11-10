@@ -81,7 +81,7 @@ body {
 }
 
 .title::after {
-    content: 'l e s  c i e l s  d ' i n t e r n e t';
+    content: "les ciels d'internet";
     display: block;
     font-size: 14px;
     margin-top: 8px;
