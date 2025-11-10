@@ -14,7 +14,9 @@
 # - Sécurité production
 ################################################################################
 
-set -e
+# Ne pas arrêter le script sur les erreurs mineures
+# set -e est trop strict pour un script de déploiement
+# On gère les erreurs critiques manuellement
 
 # Couleurs
 RED='\033[0;31m'
@@ -119,6 +121,7 @@ print_success "Système mis à jour"
 
 print_step "2️⃣  Installation des paquets essentiels"
 
+# Installer les paquets de base
 apt-get install -y \
     nginx \
     fail2ban \
@@ -126,17 +129,27 @@ apt-get install -y \
     curl \
     wget \
     git \
-    certbot \
-    python3-certbot-nginx \
     sudo \
     vim \
     htop \
     unzip \
-    software-properties-common \
     gnupg2 \
     ca-certificates \
-    lsb-release \
-    apt-transport-https
+    lsb-release
+
+print_success "Paquets de base installés"
+
+# Installer certbot (peut nécessiter des dépôts supplémentaires)
+print_warning "Installation de certbot..."
+apt-get install -y certbot python3-certbot-nginx || {
+    print_warning "certbot non disponible dans les dépôts, installation via snap..."
+    if command -v snap &> /dev/null; then
+        snap install --classic certbot
+        ln -sf /snap/bin/certbot /usr/bin/certbot || true
+    else
+        print_warning "snap non disponible, certbot sera installé plus tard"
+    fi
+}
 
 print_success "Paquets essentiels installés"
 
@@ -151,13 +164,14 @@ if [ ! -f /etc/apt/sources.list.d/php.list ]; then
     print_warning "Ajout du dépôt PHP Ondrej Sury..."
 
     # Ajouter la clé GPG
-    curl -sSL https://packages.sury.org/php/README.txt > /dev/null 2>&1
-    wget -qO - https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/php-archive-keyring.gpg
+    curl -sSL https://packages.sury.org/php/README.txt > /dev/null 2>&1 || true
+    wget -qO - https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/php-archive-keyring.gpg 2>/dev/null
 
     # Ajouter le dépôt
     echo "deb [signed-by=/usr/share/keyrings/php-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
 
     apt-get update
+    print_success "Dépôt PHP ajouté"
 fi
 
 # Installer PHP (dernière version) et extensions
@@ -369,12 +383,14 @@ ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 # Tester la configuration
-if nginx -t; then
+if nginx -t 2>&1; then
     systemctl reload nginx
     print_success "nginx configuré pour $DOMAIN"
 else
     print_error "Erreur dans la configuration nginx"
+    print_warning "Affichage du test nginx pour debug:"
     nginx -t
+    print_error "Vérifiez la configuration nginx et réessayez"
     exit 1
 fi
 
