@@ -147,6 +147,8 @@ async function uploadPhotos() {
         return;
     }
 
+    console.log('Début upload de', selectedFiles.length, 'fichier(s)');
+
     // Afficher la barre de progression
     document.getElementById('upload-preview').style.display = 'none';
     document.getElementById('upload-progress').style.display = 'block';
@@ -168,6 +170,7 @@ async function uploadPhotos() {
 
         // Mettre à jour le statut
         uploadStatus.textContent = `Upload de ${file.name}... (${i + 1}/${selectedFiles.length})`;
+        console.log(`Upload ${i + 1}/${selectedFiles.length}:`, file.name);
 
         try {
             const response = await fetch('upload.php', {
@@ -175,22 +178,57 @@ async function uploadPhotos() {
                 body: formData
             });
 
-            const data = await response.json();
+            console.log('Réponse HTTP:', response.status, response.statusText);
+
+            // Vérifier si la réponse est ok
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Erreur serveur:', errorText);
+                results.errors.push({
+                    filename: file.name,
+                    error: `Erreur serveur (${response.status}): ${response.statusText}`
+                });
+                continue;
+            }
+
+            // Essayer de parser le JSON
+            let data;
+            try {
+                const responseText = await response.text();
+                console.log('Réponse brute:', responseText);
+                data = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error('Erreur parsing JSON:', jsonError);
+                results.errors.push({
+                    filename: file.name,
+                    error: 'Erreur: Réponse serveur invalide'
+                });
+                continue;
+            }
 
             if (data.success) {
+                console.log('Upload réussi:', file.name);
                 results.success.push({ filename: file.name, data: data.photo });
             } else {
+                console.error('Upload échoué:', file.name, data.error);
                 results.errors.push({ filename: file.name, error: data.error });
             }
         } catch (error) {
-            results.errors.push({ filename: file.name, error: 'Erreur réseau' });
+            console.error('Exception lors de l\'upload:', error);
+            results.errors.push({
+                filename: file.name,
+                error: `Erreur réseau: ${error.message}`
+            });
         }
 
         // Mettre à jour la barre de progression
         const progress = Math.round(((i + 1) / selectedFiles.length) * 100);
         progressBar.style.width = progress + '%';
         progressText.textContent = progress + '%';
+        console.log('Progression:', progress + '%');
     }
+
+    console.log('Résultats finaux:', results);
 
     // Afficher les résultats
     showResults(results);
