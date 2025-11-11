@@ -636,6 +636,38 @@ body.dark-mode .photo-item img {
     border-color: var(--accent-pink);
 }
 
+/* Bouton pour afficher le formulaire */
+.show-comment-form-btn {
+    width: 100%;
+    padding: 16px 30px;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    border-radius: 1px;
+    margin-top: auto;
+}
+
+.show-comment-form-btn:hover {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--accent-pink);
+}
+
+.show-comment-form-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
 /* Comment Form */
 .comment-form {
     background-color: var(--bg-secondary);
@@ -695,12 +727,15 @@ body.dark-mode .photo-item img {
     opacity: 0.7;
 }
 
+.comment-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 5px;
+}
+
 .comment-form button {
-    width: 100%;
-    padding: 14px 30px;
-    background-color: var(--border-color);
-    color: var(--bg-card);
-    border: 2px solid var(--border-color);
+    flex: 1;
+    padding: 14px 20px;
     font-family: 'Space Mono', monospace;
     font-size: 13px;
     font-weight: 700;
@@ -710,13 +745,32 @@ body.dark-mode .photo-item img {
     letter-spacing: 1.5px;
     box-shadow: 4px 4px 0 var(--shadow-color);
     border-radius: 1px;
-    margin-top: 5px;
+    border: 2px solid var(--border-color);
 }
 
-.comment-form button:hover {
+.comment-form .btn-submit {
+    background-color: var(--border-color);
+    color: var(--bg-card);
+}
+
+.comment-form .btn-submit:hover {
     background-color: var(--accent-pink);
     border-color: var(--accent-pink);
     color: var(--text-primary);
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--shadow-color);
+}
+
+.comment-form .btn-cancel {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.comment-form .btn-cancel:hover {
+    background-color: var(--text-muted);
+    border-color: var(--text-muted);
+    color: var(--bg-card);
     transform: translate(-1px, -1px);
     box-shadow: 5px 5px 0 var(--shadow-color);
 }

@@ -137,9 +137,8 @@ function closeCommentsModal() {
 
     currentPhotoId = null;
 
-    // Réinitialiser le formulaire
-    document.getElementById('comment-content').value = '';
-    document.getElementById('comment-author').value = '';
+    // Réinitialiser le formulaire et son état
+    hideCommentForm();
 
     // Réinitialiser l'image
     document.getElementById('modal-photo-img').src = '';
@@ -224,6 +223,9 @@ function addComment() {
         document.getElementById('comment-content').value = '';
         document.getElementById('comment-author').value = '';
 
+        // Cacher le formulaire et réafficher le bouton
+        hideCommentForm();
+
         // Mettre à jour le compteur sur la photo
         updateCommentCount(currentPhotoId);
     })
@@ -231,6 +233,23 @@ function addComment() {
         console.error('Erreur lors de l\'ajout du commentaire:', error);
         alert('Erreur lors de l\'ajout du commentaire.');
     });
+}
+
+// Afficher le formulaire de commentaire
+function showCommentForm() {
+    document.getElementById('show-comment-form-btn').style.display = 'none';
+    document.getElementById('comment-form').style.display = 'block';
+    // Focus sur le textarea
+    document.getElementById('comment-content').focus();
+}
+
+// Cacher le formulaire de commentaire
+function hideCommentForm() {
+    document.getElementById('comment-form').style.display = 'none';
+    document.getElementById('show-comment-form-btn').style.display = 'block';
+    // Réinitialiser les champs
+    document.getElementById('comment-content').value = '';
+    document.getElementById('comment-author').value = '';
 }
 
 // Modifier un commentaire
