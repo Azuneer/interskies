@@ -451,27 +451,29 @@ body.dark-mode .photo-item img {
 
 /* Right side: Comments */
 .modal-comments-section {
-    flex: 0 0 450px;
+    flex: 0 0 480px;
     background-color: var(--bg-primary);
-    padding: 40px 30px;
+    padding: 45px 35px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    gap: 0;
 }
 
 #modal-photo-title {
     font-family: 'Space Mono', monospace;
-    font-size: 22px;
+    font-size: 20px;
     color: var(--text-primary);
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid var(--border-color);
+    margin-bottom: 25px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--border-color);
     text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* Like Button in Modal */
 .modal-like-section {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .like-button {
@@ -514,62 +516,86 @@ body.dark-mode .photo-item img {
 /* Comments List */
 #comments-list {
     flex: 1;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     overflow-y: auto;
+    padding-right: 5px; /* Espace pour scroll bar */
+}
+
+/* Message quand pas de commentaires */
+#comments-list:empty::after {
+    content: 'Aucun commentaire pour le moment...';
+    display: block;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
 }
 
 .comment {
     background-color: var(--bg-card);
-    padding: 20px;
-    border: 3px solid var(--border-color);
-    margin-bottom: 20px;
-    box-shadow: 5px 5px 0 var(--shadow-color);
+    padding: 25px;
+    border: 2px solid var(--border-color);
+    margin-bottom: 25px;
+    box-shadow: 4px 4px 0 var(--shadow-color);
     position: relative;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.comment:hover {
+    box-shadow: 6px 6px 0 var(--accent-purple);
+    transform: translateX(-1px);
 }
 
 .comment::before {
     content: '✦';
     position: absolute;
-    top: -12px;
-    left: 20px;
+    top: -10px;
+    left: 25px;
     background-color: var(--bg-primary);
-    padding: 0 8px;
+    padding: 0 10px;
     color: var(--accent-purple);
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .comment-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
-    border-bottom: 2px dashed var(--divider-color);
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider-color);
+    gap: 15px;
 }
 
 .comment-author {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-primary);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    flex-shrink: 0;
 }
 
 .comment-author::before {
     content: '~ ';
     color: var(--accent-pink);
+    margin-right: 2px;
 }
 
 .comment-date {
     font-size: 11px;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .comment-content {
     font-size: 14px;
-    color: var(--text-primary);
-    line-height: 1.8;
-    margin-bottom: 15px;
+    color: var(--text-secondary);
+    line-height: 1.9;
+    margin-bottom: 0;
+    word-wrap: break-word;
 }
 
 .comment-actions {
@@ -613,73 +639,91 @@ body.dark-mode .photo-item img {
 /* Comment Form */
 .comment-form {
     background-color: var(--bg-secondary);
-    padding: 25px;
-    border: 3px solid var(--border-color);
-    box-shadow: 5px 5px 0 var(--shadow-color);
+    padding: 30px;
+    border: 2px solid var(--border-color);
+    box-shadow: 4px 4px 0 var(--shadow-color);
     margin-top: auto;
+    border-radius: 2px;
 }
 
 .comment-form h3 {
     font-family: 'Space Mono', monospace;
-    font-size: 16px;
+    font-size: 15px;
     color: var(--text-primary);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .comment-form h3::before {
     content: '✦ ';
     color: var(--accent-pink);
+    margin-right: 3px;
 }
 
 .comment-form textarea,
 .comment-form input[type="text"] {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     background-color: var(--bg-card);
     color: var(--text-primary);
-    border: 3px solid var(--border-color);
+    border: 2px solid var(--border-color);
     font-family: 'Space Mono', monospace;
     font-size: 13px;
-    margin-bottom: 12px;
+    line-height: 1.6;
+    margin-bottom: 15px;
     resize: vertical;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    transition: all 0.2s ease;
+    border-radius: 1px;
+}
+
+.comment-form textarea {
+    min-height: 100px;
 }
 
 .comment-form textarea:focus,
 .comment-form input[type="text"]:focus {
     outline: none;
     border-color: var(--accent-purple);
-    box-shadow: 3px 3px 0 var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(184, 167, 212, 0.15);
+    background-color: var(--bg-card);
+}
+
+.comment-form input[type="text"]::placeholder,
+.comment-form textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
 }
 
 .comment-form button {
     width: 100%;
-    padding: 12px 30px;
+    padding: 14px 30px;
     background-color: var(--border-color);
     color: var(--bg-card);
-    border: 3px solid var(--border-color);
+    border: 2px solid var(--border-color);
     font-family: 'Space Mono', monospace;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     box-shadow: 4px 4px 0 var(--shadow-color);
+    border-radius: 1px;
+    margin-top: 5px;
 }
 
 .comment-form button:hover {
     background-color: var(--accent-pink);
     border-color: var(--accent-pink);
     color: var(--text-primary);
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 var(--shadow-color);
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--shadow-color);
 }
 
 .comment-form button:active {
-    transform: translate(4px, 4px);
-    box-shadow: none;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
 /* === ADMIN PAGE === */
