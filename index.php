@@ -259,11 +259,20 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
 
                 <div id="comments-list"></div>
 
-                <div class="comment-form">
+                <!-- Bouton pour ouvrir le formulaire -->
+                <button id="show-comment-form-btn" class="show-comment-form-btn" onclick="showCommentForm()">
+                    ✦ Ajouter un commentaire
+                </button>
+
+                <!-- Formulaire de commentaire (caché par défaut) -->
+                <div class="comment-form" id="comment-form" style="display: none;">
                     <h3>Ajouter un commentaire</h3>
                     <textarea id="comment-content" placeholder="Votre commentaire..." rows="3"></textarea>
                     <input type="text" id="comment-author" placeholder="Votre nom (optionnel)">
-                    <button onclick="addComment()">Ajouter</button>
+                    <div class="comment-form-actions">
+                        <button onclick="addComment()" class="btn-submit">Ajouter</button>
+                        <button onclick="hideCommentForm()" class="btn-cancel">Annuler</button>
+                    </div>
                 </div>
             </div>
         </div>
