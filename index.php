@@ -278,6 +278,18 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
         </div>
     </div>
 
+    <!-- Footer légal -->
+    <footer class="legal-footer-section">
+        <div class="legal-footer-links">
+            <a href="mentions.php">Mentions Légales</a>
+            <a href="privacy.php">Politique de Confidentialité</a>
+            <a href="mailto:contact@interskies.com">Contact</a>
+        </div>
+        <div class="legal-footer-copyright">
+            © <?= date('Y') ?> Interskies - Tous droits réservés
+        </div>
+    </footer>
+
     <script src="assets/js/script.js"></script>
 </body>
 </html>
