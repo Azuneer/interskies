@@ -83,6 +83,16 @@ function initDB() {
         UNIQUE(photo_id, session_id)
     )");
 
+    // Table comment_likes
+    $db->exec("CREATE TABLE IF NOT EXISTS comment_likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        comment_id INTEGER NOT NULL,
+        session_id TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+        UNIQUE(comment_id, session_id)
+    )");
+
     // Créer l'utilisateur admin par défaut si n'existe pas
     $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
     $stmt->execute(['admin']);

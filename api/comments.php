@@ -20,7 +20,15 @@ try {
                 exit;
             }
 
-            $stmt = $db->prepare("SELECT * FROM comments WHERE photo_id = ? ORDER BY created_at ASC");
+            // Récupérer les commentaires avec le compte de likes
+            $stmt = $db->prepare("
+                SELECT c.*, COUNT(DISTINCT cl.id) as like_count
+                FROM comments c
+                LEFT JOIN comment_likes cl ON c.id = cl.comment_id
+                WHERE c.photo_id = ?
+                GROUP BY c.id
+                ORDER BY c.parent_id IS NULL DESC, like_count DESC, c.created_at ASC
+            ");
             $stmt->execute([$photoId]);
             $photoComments = $stmt->fetchAll();
 
