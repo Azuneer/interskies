@@ -55,9 +55,23 @@ function initDB() {
         photo_id INTEGER NOT NULL,
         content TEXT NOT NULL,
         author TEXT DEFAULT 'Anonyme',
+        parent_id INTEGER DEFAULT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE
+        FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+        FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE
     )");
+
+    // Migration : Ajouter parent_id si la colonne n'existe pas déjà
+    try {
+        $result = $db->query("PRAGMA table_info(comments)");
+        $columns = $result->fetchAll(PDO::FETCH_COLUMN, 1);
+
+        if (!in_array('parent_id', $columns)) {
+            $db->exec("ALTER TABLE comments ADD COLUMN parent_id INTEGER DEFAULT NULL");
+        }
+    } catch (Exception $e) {
+        // Ignorer si la colonne existe déjà
+    }
 
     // Table likes
     $db->exec("CREATE TABLE IF NOT EXISTS likes (

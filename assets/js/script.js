@@ -1,6 +1,7 @@
 // Variables globales
 let currentPhotoId = null;
 let isAdminMode = false;
+let currentReplyToId = null; // Pour stocker l'ID du commentaire auquel on répond
 
 // ============================================
 // Son au survol des photos
@@ -145,6 +146,63 @@ function closeCommentsModal() {
     document.getElementById('modal-photo-filename').textContent = '';
 }
 
+// Organiser les commentaires en arbre
+function buildCommentTree(comments) {
+    const commentMap = {};
+    const rootComments = [];
+
+    // Créer un map de tous les commentaires
+    comments.forEach(comment => {
+        comment.replies = [];
+        commentMap[comment.id] = comment;
+    });
+
+    // Organiser en arbre
+    comments.forEach(comment => {
+        if (comment.parent_id === null) {
+            rootComments.push(comment);
+        } else {
+            if (commentMap[comment.parent_id]) {
+                commentMap[comment.parent_id].replies.push(comment);
+            }
+        }
+    });
+
+    return rootComments;
+}
+
+// Rendre l'HTML d'un commentaire et ses réponses
+function renderComment(comment, level = 0) {
+    const indent = level > 0 ? 'comment-reply' : '';
+    const isReply = level > 0;
+
+    let html = `
+        <div class="comment ${indent}" data-comment-id="${comment.id}" style="${isReply ? 'margin-left: 35px;' : ''}">
+            <div class="comment-header">
+                <span class="comment-author">${escapeHtml(comment.author)}</span>
+                <span class="comment-date">${formatDate(comment.created_at)}</span>
+            </div>
+            <div class="comment-content">${escapeHtml(comment.content)}</div>
+            <div class="comment-footer">
+                <button class="btn-reply" onclick="replyToComment(${comment.id}, '${escapeHtml(comment.author).replace(/'/g, "\\'")}')">Répondre</button>
+                <div class="comment-actions" style="display: ${isAdminMode ? 'inline-flex' : 'none'}">
+                    <button class="btn-edit" onclick="editComment(${comment.id}, '${escapeHtml(comment.content).replace(/'/g, "\\'")}', '${escapeHtml(comment.author).replace(/'/g, "\\'")}')">Modifier</button>
+                    <button class="btn-delete" onclick="deleteComment(${comment.id})">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Ajouter les réponses récursivement
+    if (comment.replies && comment.replies.length > 0) {
+        comment.replies.forEach(reply => {
+            html += renderComment(reply, level + 1);
+        });
+    }
+
+    return html;
+}
+
 // Charger les commentaires
 function loadComments(photoId) {
     fetch(`api/comments.php?photo_id=${photoId}`)
@@ -157,21 +215,13 @@ function loadComments(photoId) {
                 return;
             }
 
+            // Organiser en arbre
+            const commentTree = buildCommentTree(comments);
+
+            // Rendre l'HTML
             let html = '';
-            comments.forEach(comment => {
-                html += `
-                    <div class="comment" data-comment-id="${comment.id}">
-                        <div class="comment-header">
-                            <span class="comment-author">${escapeHtml(comment.author)}</span>
-                            <span class="comment-date">${formatDate(comment.created_at)}</span>
-                        </div>
-                        <div class="comment-content">${escapeHtml(comment.content)}</div>
-                        <div class="comment-actions" style="display: ${isAdminMode ? 'flex' : 'none'}">
-                            <button class="btn-edit" onclick="editComment(${comment.id}, '${escapeHtml(comment.content).replace(/'/g, "\\'")}', '${escapeHtml(comment.author).replace(/'/g, "\\'")}')">Modifier</button>
-                            <button class="btn-delete" onclick="deleteComment(${comment.id})">Supprimer</button>
-                        </div>
-                    </div>
-                `;
+            commentTree.forEach(comment => {
+                html += renderComment(comment);
             });
 
             commentsList.innerHTML = html;
@@ -181,6 +231,19 @@ function loadComments(photoId) {
             const commentsList = document.getElementById('comments-list');
             commentsList.innerHTML = '<p style="color: var(--accent-pink); text-align: center; padding: 20px; font-size: 13px;">Erreur lors du chargement des commentaires.</p>';
         });
+}
+
+// Répondre à un commentaire
+function replyToComment(commentId, authorName) {
+    currentReplyToId = commentId;
+    showCommentForm();
+
+    // Mettre à jour le titre du formulaire pour indiquer qu'on répond
+    const formTitle = document.querySelector('.comment-form h3');
+    formTitle.innerHTML = `✦ Répondre à ${authorName}`;
+
+    // Focus sur le textarea
+    document.getElementById('comment-content').focus();
 }
 
 // Ajouter un commentaire
@@ -198,16 +261,23 @@ function addComment() {
         return;
     }
 
+    const payload = {
+        photo_id: currentPhotoId,
+        content: content,
+        author: author
+    };
+
+    // Ajouter parent_id si on répond à un commentaire
+    if (currentReplyToId !== null) {
+        payload.parent_id = currentReplyToId;
+    }
+
     fetch('api/comments.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            photo_id: currentPhotoId,
-            content: content,
-            author: author
-        })
+        body: JSON.stringify(payload)
     })
     .then(response => response.json())
     .then(data => {
@@ -250,6 +320,10 @@ function hideCommentForm() {
     // Réinitialiser les champs
     document.getElementById('comment-content').value = '';
     document.getElementById('comment-author').value = '';
+    // Réinitialiser le mode réponse
+    currentReplyToId = null;
+    const formTitle = document.querySelector('.comment-form h3');
+    formTitle.innerHTML = '✦ Ajouter un commentaire';
 }
 
 // Modifier un commentaire
