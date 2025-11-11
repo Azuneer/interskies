@@ -624,6 +624,45 @@ body.dark-mode .photo-item img {
     margin-top: 12px;
 }
 
+.btn-comment-like {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 1px;
+}
+
+.btn-comment-like:hover {
+    background-color: var(--accent-pink);
+    border-color: var(--accent-pink);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.btn-comment-like.liked {
+    background-color: var(--accent-pink);
+    border-color: var(--accent-pink);
+    color: var(--text-primary);
+}
+
+.btn-comment-like .comment-like-icon {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.btn-comment-like .comment-like-count {
+    font-size: 11px;
+    font-weight: 700;
+}
+
 .btn-reply {
     padding: 6px 12px;
     border: 2px solid var(--border-color);

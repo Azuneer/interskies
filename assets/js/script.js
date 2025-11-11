@@ -175,6 +175,7 @@ function buildCommentTree(comments) {
 function renderComment(comment, level = 0) {
     const indent = level > 0 ? 'comment-reply' : '';
     const isReply = level > 0;
+    const likeCount = comment.like_count || 0;
 
     let html = `
         <div class="comment ${indent}" data-comment-id="${comment.id}" style="${isReply ? 'margin-left: 35px;' : ''}">
@@ -184,6 +185,10 @@ function renderComment(comment, level = 0) {
             </div>
             <div class="comment-content">${escapeHtml(comment.content)}</div>
             <div class="comment-footer">
+                <button class="btn-comment-like" data-comment-id="${comment.id}" onclick="toggleCommentLike(${comment.id})">
+                    <span class="comment-like-icon">🤍</span>
+                    <span class="comment-like-count">${likeCount}</span>
+                </button>
                 <button class="btn-reply" onclick="replyToComment(${comment.id}, '${escapeHtml(comment.author).replace(/'/g, "\\'")}')">Répondre</button>
                 <div class="comment-actions" style="display: ${isAdminMode ? 'inline-flex' : 'none'}">
                     <button class="btn-edit" onclick="editComment(${comment.id}, '${escapeHtml(comment.content).replace(/'/g, "\\'")}', '${escapeHtml(comment.author).replace(/'/g, "\\'")}')">Modifier</button>
@@ -225,12 +230,94 @@ function loadComments(photoId) {
             });
 
             commentsList.innerHTML = html;
+
+            // Charger l'état des likes pour tous les commentaires
+            loadAllCommentLikeStates(comments);
         })
         .catch(error => {
             console.error('Erreur lors du chargement des commentaires:', error);
             const commentsList = document.getElementById('comments-list');
             commentsList.innerHTML = '<p style="color: var(--accent-pink); text-align: center; padding: 20px; font-size: 13px;">Erreur lors du chargement des commentaires.</p>';
         });
+}
+
+// Charger l'état des likes pour tous les commentaires
+function loadAllCommentLikeStates(comments) {
+    comments.forEach(comment => {
+        loadCommentLikeState(comment.id);
+    });
+}
+
+// Charger l'état d'un like de commentaire
+function loadCommentLikeState(commentId) {
+    fetch(`api/comment_likes.php?comment_id=${commentId}`)
+        .then(response => response.json())
+        .then(data => {
+            const commentLikeBtn = document.querySelector(`.btn-comment-like[data-comment-id="${commentId}"]`);
+            if (!commentLikeBtn) return;
+
+            const icon = commentLikeBtn.querySelector('.comment-like-icon');
+            const count = commentLikeBtn.querySelector('.comment-like-count');
+
+            count.textContent = data.like_count;
+
+            if (data.has_liked) {
+                icon.textContent = '❤️';
+                commentLikeBtn.classList.add('liked');
+            } else {
+                icon.textContent = '🤍';
+                commentLikeBtn.classList.remove('liked');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement du like:', error);
+        });
+}
+
+// Toggle like sur un commentaire
+function toggleCommentLike(commentId) {
+    fetch('api/comment_likes.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            comment_id: commentId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Erreur: ' + data.error);
+            return;
+        }
+
+        // Mettre à jour le bouton
+        const commentLikeBtn = document.querySelector(`.btn-comment-like[data-comment-id="${commentId}"]`);
+        if (!commentLikeBtn) return;
+
+        const icon = commentLikeBtn.querySelector('.comment-like-icon');
+        const count = commentLikeBtn.querySelector('.comment-like-count');
+
+        count.textContent = data.like_count;
+
+        if (data.has_liked) {
+            icon.textContent = '❤️';
+            commentLikeBtn.classList.add('liked');
+        } else {
+            icon.textContent = '🤍';
+            commentLikeBtn.classList.remove('liked');
+        }
+
+        // Recharger les commentaires pour mettre à jour l'ordre
+        if (currentPhotoId) {
+            loadComments(currentPhotoId);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors du toggle du like:', error);
+        alert('Erreur lors du like.');
+    });
 }
 
 // Répondre à un commentaire
