@@ -17,6 +17,7 @@ $timeout = isset($_GET['timeout']) ? true : false;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Interskies</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         .login-container {

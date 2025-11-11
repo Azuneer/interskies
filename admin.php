@@ -81,6 +81,7 @@ $totalComments = $stmt->fetchColumn();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Interskies</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body style="background-color: var(--bg-primary); background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--shadow-color) 2px, var(--shadow-color) 4px);">

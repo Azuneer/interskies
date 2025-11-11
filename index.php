@@ -132,6 +132,7 @@ $totalSize = array_sum(array_column($filteredPhotos, 'size'));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interskies - Galerie de Photos du Ciel</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="assets/img" href="assets/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
