@@ -22,7 +22,7 @@
             <section class="legal-section">
                 <h2>1. Responsable du traitement</h2>
                 <p>
-                    <strong>Responsable :</strong> [VOTRE NOM COMPLET]<br>
+                    <strong>Responsable :</strong> EWEN GADONNAUD<br>
                     <strong>Email :</strong> contact@interskies.com<br>
                     <strong>Site web :</strong> interskies.com
                 </p>

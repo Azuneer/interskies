@@ -21,7 +21,7 @@
             <section class="legal-section">
                 <h2>1. Éditeur du site</h2>
                 <p>
-                    <strong>Nom :</strong> Ewen GADONNAUD<br>
+                    <strong>Nom :</strong> EWEN GADONNAUD<br>
                     <strong>Email :</strong> contact@interskies.com<br>
                     <strong>Site web :</strong> <a href="https://interskies.com">https://interskies.com</a>
                 </p>
