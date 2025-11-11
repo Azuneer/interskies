@@ -20,7 +20,7 @@ try {
                 exit;
             }
 
-            $stmt = $db->prepare("SELECT * FROM comments WHERE photo_id = ? ORDER BY created_at DESC");
+            $stmt = $db->prepare("SELECT * FROM comments WHERE photo_id = ? ORDER BY created_at ASC");
             $stmt->execute([$photoId]);
             $photoComments = $stmt->fetchAll();
 
@@ -52,11 +52,29 @@ try {
                 ? trim($data['author'])
                 : 'Anonyme';
 
-            $stmt = $db->prepare("INSERT INTO comments (photo_id, content, author) VALUES (?, ?, ?)");
+            $parentId = isset($data['parent_id']) && $data['parent_id'] !== null
+                ? (int)$data['parent_id']
+                : null;
+
+            // Vérifier que le parent existe si parent_id est fourni
+            if ($parentId !== null) {
+                $stmt = $db->prepare("SELECT COUNT(*) FROM comments WHERE id = ?");
+                $stmt->execute([$parentId]);
+                $parentExists = $stmt->fetchColumn() > 0;
+
+                if (!$parentExists) {
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Commentaire parent non trouvé']);
+                    exit;
+                }
+            }
+
+            $stmt = $db->prepare("INSERT INTO comments (photo_id, content, author, parent_id) VALUES (?, ?, ?, ?)");
             $stmt->execute([
                 (int)$data['photo_id'],
                 trim($data['content']),
-                $author
+                $author,
+                $parentId
             ]);
 
             $newId = $db->lastInsertId();

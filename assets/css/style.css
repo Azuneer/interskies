@@ -559,6 +559,25 @@ body.dark-mode .photo-item img {
     font-size: 14px;
 }
 
+/* Réponses avec indentation */
+.comment-reply {
+    padding: 20px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    border-left: 3px solid var(--accent-purple);
+    background-color: var(--bg-secondary);
+}
+
+.comment-reply::before {
+    content: '↳';
+    left: 20px;
+    color: var(--accent-pink);
+}
+
+.comment-reply:hover {
+    box-shadow: 4px 4px 0 var(--accent-pink);
+}
+
 .comment-header {
     display: flex;
     justify-content: space-between;
@@ -598,13 +617,41 @@ body.dark-mode .photo-item img {
     word-wrap: break-word;
 }
 
+.comment-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-reply {
+    padding: 6px 12px;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    border-radius: 1px;
+}
+
+.btn-reply:hover {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
 .comment-actions {
     display: none;
     gap: 10px;
 }
 
 .comment-actions button {
-    padding: 8px 15px;
+    padding: 6px 12px;
     border: 2px solid var(--border-color);
     font-family: 'Space Mono', monospace;
     font-size: 11px;
@@ -612,6 +659,7 @@ body.dark-mode .photo-item img {
     cursor: pointer;
     transition: all 0.2s;
     text-transform: uppercase;
+    border-radius: 1px;
 }
 
 .btn-edit {
@@ -939,13 +987,19 @@ body.dark-mode .photo-item img {
 
     .modal-photo-section {
         flex: 0 0 auto;
-        max-height: 50vh;
+        max-height: 40vh;
         border-right: none;
-        border-bottom: 5px solid var(--border-color);
+        border-bottom: 3px solid var(--border-color);
+    }
+
+    .modal-photo-section img {
+        max-height: calc(40vh - 80px);
     }
 
     .modal-comments-section {
         flex: 1;
+        width: 100%;
+        padding: 30px 25px;
     }
 }
 
@@ -976,16 +1030,53 @@ body.dark-mode .photo-item img {
     }
 
     .modal-content-split {
-        width: 95%;
-        height: 90vh;
-        margin: 5% auto;
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        border: none;
     }
 
     .modal-photo-section {
-        padding: 20px;
+        padding: 15px;
+        max-height: 30vh;
+    }
+
+    .modal-photo-section img {
+        max-height: calc(30vh - 60px);
     }
 
     .modal-comments-section {
         padding: 20px 15px;
+        flex: 1;
+    }
+
+    /* Réduire l'indentation sur mobile */
+    .comment-reply {
+        margin-left: 20px !important;
+        padding: 15px;
+    }
+
+    /* Ajuster les tailles de police sur mobile */
+    #modal-photo-title {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .comment {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .comment-content {
+        font-size: 13px;
+    }
+
+    .comment-form {
+        padding: 20px;
+    }
+
+    .like-button {
+        padding: 12px;
+        font-size: 16px;
     }
 }
